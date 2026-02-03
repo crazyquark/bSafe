@@ -1,0 +1,3920 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "01749160-bbba-45b1-9aac-02369855b7d2")
+	(paper "A4")
+	(lib_symbols
+		(symbol "Device:C"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "C"
+				(at 0.635 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "C"
+				(at 0.635 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0.9652 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Unpolarized capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "cap capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "C_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "C_0_1"
+				(polyline
+					(pts
+						(xy -2.032 0.762) (xy 2.032 0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.032 -0.762) (xy 2.032 -0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "C_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 2.794)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 2.794)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:LED"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "LED"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Light emitting diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Sim.Pins" "1=K 2=A"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "LED diode"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "LED* LED_SMD:* LED_THT:*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "LED_0_1"
+				(polyline
+					(pts
+						(xy -3.048 -0.762) (xy -4.572 -2.286) (xy -3.81 -2.286) (xy -4.572 -2.286) (xy -4.572 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.778 -0.762) (xy -3.302 -2.286) (xy -2.54 -2.286) (xy -3.302 -2.286) (xy -3.302 -1.524)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy 1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -1.27) (xy -1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "LED_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:R"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "R"
+				(at 0 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "R res resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Transistor_FET:AO3400A"
+			(pin_names
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "Q"
+				(at 5.08 1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "AO3400A"
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+				(at 5.08 -1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(justify left)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf"
+				(at 5.08 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+					(hide yes)
+				)
+			)
+			(property "Description" "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "N-Channel MOSFET"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "SOT?23*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "AO3400A_0_1"
+				(polyline
+					(pts
+						(xy 0.254 1.905) (xy 0.254 -1.905)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 0) (xy -2.54 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 2.286) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 0.508) (xy 0.762 -0.508)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.27) (xy 0.762 -2.286)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.778) (xy 3.302 -1.778) (xy 3.302 1.778) (xy 0.762 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.016 0) (xy 2.032 0.381) (xy 2.032 -0.381) (xy 1.016 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 1.651 0)
+					(radius 2.794)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 2.54) (xy 2.54 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.54 1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 2.54 -1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 -2.54) (xy 2.54 0) (xy 0.762 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.794 0.508) (xy 2.921 0.381) (xy 3.683 0.381) (xy 3.81 0.254)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.302 0.381) (xy 2.921 -0.254) (xy 3.683 -0.254) (xy 3.302 0.381)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "AO3400A_1_1"
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "G"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "parts:AO44XX"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "Q"
+				(at 5.08 1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "AO44XX"
+				(at 5.08 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Package_SO:SOP-8_3.76x4.96mm_P1.27mm"
+				(at 4.826 -16.51 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#cha_MOSFETs"
+				(at 0 -12.7 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "P-MOSFET transistor, drain/source/gate"
+				(at 0.254 -15.24 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "transistor PMOS P-MOS P-MOSFET simulation"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "AO44XX_0_1"
+				(polyline
+					(pts
+						(xy 0.254 1.905) (xy 0.254 -1.905)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 0) (xy -2.54 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 2.286) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 1.778) (xy 3.302 1.778) (xy 3.302 -1.778) (xy 0.762 -1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 0.508) (xy 0.762 -0.508)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.27) (xy 0.762 -2.286)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 1.651 0)
+					(radius 2.794)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.286 0) (xy 1.27 0.381) (xy 1.27 -0.381) (xy 2.286 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 2.54) (xy 2.54 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.54 1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 2.54 -1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 -2.54) (xy 2.54 0) (xy 0.762 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.794 -0.508) (xy 2.921 -0.381) (xy 3.683 -0.381) (xy 3.81 -0.254)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.302 -0.381) (xy 2.921 0.254) (xy 3.683 0.254) (xy 3.302 -0.381)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "AO44XX_1_1"
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "G"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(hide yes)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(hide yes)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(hide yes)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(hide yes)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(hide yes)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "power:GND"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "GND"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "GND_0_1"
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "GND_1_1"
+				(pin power_in line
+					(at 0 0 270)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+	)
+	(rectangle
+		(start 93.98 69.85)
+		(end 209.55 135.89)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(uuid 998e1051-27ae-4006-aaf4-ba886fda8d34)
+	)
+	(text "EQUIVALENT RESISTANCE\n(3.3 + 3.3) / 8 = 825 miliohms"
+		(exclude_from_sim no)
+		(at 174.244 93.472 0)
+		(effects
+			(font
+				(size 1.524 1.524)
+				(thickness 0.3048)
+				(bold yes)
+			)
+		)
+		(uuid "0ae69605-bb71-40fb-963c-8745653f2927")
+	)
+	(text "ESTIMATED POWER DRAW\n4.2[V] / (825 +  30)[mR] = 4.91[A] (20.6W)\n4.0[V] / (825 +  35)[mR] = 4.65[A] (18.6W)\n3.8[V] / (825 +  45)[mR] = 4.37[A] (16.6W)\n3.6[V] / (825 +  65)[mR] = 4.04[A] (14.5W)\n3.4[V] / (825 + 105)[mR] = 3.66[A] (12.4W)"
+		(exclude_from_sim no)
+		(at 141.732 125.73 0)
+		(effects
+			(font
+				(size 1.524 1.524)
+				(thickness 0.1905)
+			)
+			(justify left)
+		)
+		(uuid "4db285c5-9547-414f-aab8-f1cc36fdb009")
+	)
+	(text "BATTERY DISCHARGE UP TO 5A (IMPULSE)"
+		(exclude_from_sim no)
+		(at 186.436 75.184 0)
+		(effects
+			(font
+				(face "Consolas")
+				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
+			)
+			(justify right)
+		)
+		(uuid "f80a5e54-f977-4043-b3af-a76bad93aed1")
+	)
+	(junction
+		(at 111.76 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "01b50119-d3d9-4a48-b610-acd93a8b705c")
+	)
+	(junction
+		(at 172.72 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "177b6d93-0f74-43f0-940a-c9d3e567dcb1")
+	)
+	(junction
+		(at 142.24 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1cdfb3ac-8b71-458a-9dd5-9abc9d00cefe")
+	)
+	(junction
+		(at 157.48 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1fd4c53c-74dc-42ff-90c1-9c524448ae5f")
+	)
+	(junction
+		(at 118.11 87.63)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "209be949-abad-4788-9c1f-6451a1f04301")
+	)
+	(junction
+		(at 180.34 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "272bb4f8-2e60-48c1-8d4c-9ba68ce48dbd")
+	)
+	(junction
+		(at 125.73 91.44)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "2b0444b3-f650-4b96-986d-85256ca45711")
+	)
+	(junction
+		(at 187.96 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "34b3c03e-875c-40c3-a10d-1c6800c7249d")
+	)
+	(junction
+		(at 165.1 97.79)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3fe046ba-a53e-4a63-8def-c91bc08b5370")
+	)
+	(junction
+		(at 149.86 97.79)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4e438950-c385-4471-9af2-660f10baeb2a")
+	)
+	(junction
+		(at 165.1 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "58e62c19-69cd-4d95-9392-3f3581b38913")
+	)
+	(junction
+		(at 165.1 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "619ab806-a290-4658-b669-0dfbed0b8c85")
+	)
+	(junction
+		(at 180.34 97.79)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6a8cebc5-e8b1-4c78-b599-e6270f0d037c")
+	)
+	(junction
+		(at 149.86 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "781305f5-f0cb-4556-b039-35fed399e26e")
+	)
+	(junction
+		(at 180.34 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "86097681-748b-43e0-904d-0d186715c0dc")
+	)
+	(junction
+		(at 187.96 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "911862c9-6436-44d6-878e-e2073871c7a1")
+	)
+	(junction
+		(at 157.48 97.79)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "96fdf6a7-857f-457f-8de3-214293c1cec8")
+	)
+	(junction
+		(at 157.48 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a97073e7-c609-4c35-972b-d0ae5a257dd6")
+	)
+	(junction
+		(at 195.58 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a99dd125-5384-41cb-b492-0503d8445687")
+	)
+	(junction
+		(at 142.24 97.79)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ad7dceb1-3251-4ee5-a41f-24543e47dda9")
+	)
+	(junction
+		(at 125.73 81.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "adf92122-e68e-40b3-820c-ddb18bdedb54")
+	)
+	(junction
+		(at 142.24 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b7b59308-2784-4abf-bd21-6b06b374a20f")
+	)
+	(junction
+		(at 149.86 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c9ee30a1-ad5b-459b-909a-fc6b31243f2a")
+	)
+	(junction
+		(at 172.72 106.68)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d914646e-d406-4704-9ba7-2d117a1dea78")
+	)
+	(junction
+		(at 118.11 101.6)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ec160d10-9e0f-4d2a-af94-41c6bc478bfb")
+	)
+	(junction
+		(at 172.72 97.79)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f57d24e1-1785-436c-a193-d9c5622a5b1a")
+	)
+	(junction
+		(at 118.11 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f959915a-3b6e-4207-a92e-0267cefffe82")
+	)
+	(junction
+		(at 125.73 115.57)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f9ec1441-8662-4c1c-9ac9-c6bc686e24b2")
+	)
+	(junction
+		(at 187.96 97.79)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ff55546d-c88d-4edd-b454-151f1d420ca9")
+	)
+	(wire
+		(pts
+			(xy 111.76 102.87) (xy 111.76 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "01bae4ae-a3bb-4250-9fdb-462da47244fd")
+	)
+	(wire
+		(pts
+			(xy 172.72 115.57) (xy 172.72 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "041daea7-d42f-41cf-8287-699258282efb")
+	)
+	(wire
+		(pts
+			(xy 142.24 99.06) (xy 142.24 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "063d929c-3885-4262-afab-5e076dbc60a0")
+	)
+	(wire
+		(pts
+			(xy 157.48 106.68) (xy 165.1 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "070a93c5-9f60-4603-bcfb-48c9bff456a2")
+	)
+	(wire
+		(pts
+			(xy 113.03 85.09) (xy 118.11 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0f70068a-3f75-4e18-a7fe-4d388abf32ac")
+	)
+	(wire
+		(pts
+			(xy 187.96 99.06) (xy 187.96 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "19d6cdc9-f0df-44c1-b52b-39d20022717b")
+	)
+	(wire
+		(pts
+			(xy 195.58 115.57) (xy 195.58 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1b35d6bc-c87c-466e-a5db-55e3b7500e7d")
+	)
+	(wire
+		(pts
+			(xy 180.34 115.57) (xy 187.96 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1cacf94a-f49b-42b5-906a-c7a0c1cb1425")
+	)
+	(wire
+		(pts
+			(xy 172.72 115.57) (xy 180.34 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1e4f8164-8152-4f9e-8e6c-48c8858d19b1")
+	)
+	(wire
+		(pts
+			(xy 125.73 82.55) (xy 125.73 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1ef7713e-6657-4803-b9db-b549b6384b78")
+	)
+	(wire
+		(pts
+			(xy 142.24 115.57) (xy 142.24 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2bf5de91-6c57-4623-b4e4-3a137f330681")
+	)
+	(wire
+		(pts
+			(xy 118.11 85.09) (xy 118.11 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "30a3bbcb-9b66-4c21-9f70-90d8c99789b9")
+	)
+	(wire
+		(pts
+			(xy 118.11 115.57) (xy 118.11 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "343c76c2-b0a4-41e8-adc1-74114e2595f2")
+	)
+	(wire
+		(pts
+			(xy 195.58 97.79) (xy 187.96 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3ac98788-279d-4f04-8d80-a6a331d98d6b")
+	)
+	(wire
+		(pts
+			(xy 149.86 115.57) (xy 149.86 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "42f27be8-113a-4e77-ab32-e49fed07d1c9")
+	)
+	(wire
+		(pts
+			(xy 172.72 97.79) (xy 180.34 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45ee0e36-b35a-4bc4-9774-f4201e4c332f")
+	)
+	(wire
+		(pts
+			(xy 165.1 97.79) (xy 172.72 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4c6b3bc9-241e-4547-be44-44a3ede7e3cb")
+	)
+	(wire
+		(pts
+			(xy 111.76 110.49) (xy 111.76 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4dee4978-2e62-4fb6-9814-386da198cf5d")
+	)
+	(wire
+		(pts
+			(xy 165.1 99.06) (xy 165.1 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "507de06d-9811-434e-ae1c-9d598e475fa6")
+	)
+	(wire
+		(pts
+			(xy 149.86 115.57) (xy 157.48 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5094eae3-fa24-4dec-a2fb-5d3511c04cb5")
+	)
+	(wire
+		(pts
+			(xy 104.14 99.06) (xy 104.14 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50aa6565-1fd4-4e94-956d-1674eafe51aa")
+	)
+	(wire
+		(pts
+			(xy 157.48 115.57) (xy 165.1 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5860c399-1158-4d35-b05f-fce1869f90cc")
+	)
+	(wire
+		(pts
+			(xy 165.1 115.57) (xy 172.72 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5f07d9fe-63ce-4a3e-8cd4-87c14f49a7cb")
+	)
+	(wire
+		(pts
+			(xy 133.35 106.68) (xy 142.24 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "61a635ad-f64b-4952-aa18-b073748959b4")
+	)
+	(wire
+		(pts
+			(xy 118.11 101.6) (xy 118.11 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "62539e46-ddc3-42ec-8247-599246e229fa")
+	)
+	(wire
+		(pts
+			(xy 180.34 115.57) (xy 180.34 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "62d99375-6035-432b-a25b-0b866ebb05c5")
+	)
+	(wire
+		(pts
+			(xy 125.73 81.28) (xy 138.43 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "65525a46-1f02-4607-a2fa-5661349a04eb")
+	)
+	(wire
+		(pts
+			(xy 104.14 115.57) (xy 104.14 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6b10a36c-b601-45c1-9188-c65ec71c34cb")
+	)
+	(wire
+		(pts
+			(xy 138.43 81.28) (xy 138.43 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "71bc36a5-15ab-4bcc-ae99-b83445b9c674")
+	)
+	(wire
+		(pts
+			(xy 125.73 90.17) (xy 125.73 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "742e57ac-98d9-446a-9be4-35aa58778a4d")
+	)
+	(wire
+		(pts
+			(xy 104.14 87.63) (xy 118.11 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7636ef9b-acf9-4018-9979-b7fb462e0906")
+	)
+	(wire
+		(pts
+			(xy 118.11 115.57) (xy 125.73 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "77b62d1c-5a04-43a3-989e-de2e23790c19")
+	)
+	(wire
+		(pts
+			(xy 118.11 99.06) (xy 118.11 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "77be982d-aaab-4655-bb43-3883431a2149")
+	)
+	(wire
+		(pts
+			(xy 125.73 91.44) (xy 125.73 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7bf5fbee-b8ac-4898-be97-d51e943a6c3f")
+	)
+	(wire
+		(pts
+			(xy 113.03 81.28) (xy 125.73 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7f0a39fc-9879-4c23-a7f5-ba5338324088")
+	)
+	(wire
+		(pts
+			(xy 104.14 115.57) (xy 111.76 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7f4af006-00f0-433d-ba1f-661345e0d797")
+	)
+	(wire
+		(pts
+			(xy 157.48 115.57) (xy 157.48 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "80dc1579-08f0-474e-a8e4-6bc1f31314f4")
+	)
+	(wire
+		(pts
+			(xy 125.73 106.68) (xy 125.73 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84cba093-5353-4b62-8348-35b3dd4bad01")
+	)
+	(wire
+		(pts
+			(xy 125.73 116.84) (xy 125.73 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ae2e737-86ee-494e-8672-4672aa7492d7")
+	)
+	(wire
+		(pts
+			(xy 111.76 101.6) (xy 118.11 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e4ed143-ca4a-487c-817c-6ea0a1bb1aac")
+	)
+	(wire
+		(pts
+			(xy 180.34 106.68) (xy 187.96 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "919dd3a7-2ff0-48d1-9f19-febdd8be73f0")
+	)
+	(wire
+		(pts
+			(xy 149.86 99.06) (xy 149.86 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "928d53e4-3ad1-4878-981b-19e07b3a0fd4")
+	)
+	(wire
+		(pts
+			(xy 187.96 115.57) (xy 195.58 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93a9449e-be2d-4ee8-bf86-5f478ad52a31")
+	)
+	(wire
+		(pts
+			(xy 165.1 106.68) (xy 172.72 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "94a92e66-c4d7-4622-b424-02760f182b89")
+	)
+	(wire
+		(pts
+			(xy 142.24 97.79) (xy 149.86 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "94c2ba85-65cf-44e4-a4db-da097a00c435")
+	)
+	(wire
+		(pts
+			(xy 165.1 115.57) (xy 165.1 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a1635d01-6695-425e-ab8e-ab8ea22d9425")
+	)
+	(wire
+		(pts
+			(xy 142.24 106.68) (xy 149.86 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aaea398e-2f79-42e6-8d16-5a4c441c20bd")
+	)
+	(wire
+		(pts
+			(xy 149.86 106.68) (xy 157.48 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b59b6956-de5e-4c3b-84b8-9419224f9a60")
+	)
+	(wire
+		(pts
+			(xy 157.48 97.79) (xy 165.1 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b7ee4de1-609e-4e78-8c68-4bbd6e8e90e3")
+	)
+	(wire
+		(pts
+			(xy 187.96 115.57) (xy 187.96 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c1bd8650-5210-4115-bb83-ea5e113c4d08")
+	)
+	(wire
+		(pts
+			(xy 111.76 115.57) (xy 118.11 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c1f4c6b0-c1f6-4de4-a2a3-31153e48633d")
+	)
+	(wire
+		(pts
+			(xy 195.58 99.06) (xy 195.58 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c86533a5-60a0-4ccd-ae78-3f1e9f2bda5b")
+	)
+	(wire
+		(pts
+			(xy 187.96 106.68) (xy 195.58 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ca77aa83-08d0-4b08-af47-262e8db2e373")
+	)
+	(wire
+		(pts
+			(xy 138.43 97.79) (xy 142.24 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d1601339-b4f7-4100-813a-de6a53ee4bda")
+	)
+	(wire
+		(pts
+			(xy 118.11 87.63) (xy 118.11 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d3fda665-ea9e-4e32-a566-859d1428afe5")
+	)
+	(wire
+		(pts
+			(xy 138.43 97.79) (xy 138.43 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da5d98bf-40b7-437b-a719-001c9f4a4d4f")
+	)
+	(wire
+		(pts
+			(xy 180.34 97.79) (xy 187.96 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da99c7c4-9759-4e09-b727-eac4822e0d4b")
+	)
+	(wire
+		(pts
+			(xy 172.72 106.68) (xy 180.34 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc4cc8d4-472a-4fce-a09c-e64dce9af9c1")
+	)
+	(wire
+		(pts
+			(xy 125.73 115.57) (xy 142.24 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "deffd400-0d7c-4c1b-9a77-a0c390528b94")
+	)
+	(wire
+		(pts
+			(xy 157.48 99.06) (xy 157.48 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1e896cb-9b46-41d9-bb2a-09ea76f6320d")
+	)
+	(wire
+		(pts
+			(xy 180.34 99.06) (xy 180.34 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e5f4a160-705d-4512-8d3f-660acd5a57ad")
+	)
+	(wire
+		(pts
+			(xy 149.86 97.79) (xy 157.48 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e64f897f-7af1-4438-8cc4-9631c9d38631")
+	)
+	(wire
+		(pts
+			(xy 142.24 115.57) (xy 149.86 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e7a0d742-bf87-4fa6-9843-dfd7c911444b")
+	)
+	(wire
+		(pts
+			(xy 172.72 99.06) (xy 172.72 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e83de37b-37ce-4d1d-a4fb-2ccb914daa31")
+	)
+	(wire
+		(pts
+			(xy 104.14 87.63) (xy 104.14 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f11257fc-8396-4768-b7eb-b9f70010b106")
+	)
+	(wire
+		(pts
+			(xy 130.81 91.44) (xy 125.73 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f8cac6c9-7bb0-4acd-b180-9e8e98f252e6")
+	)
+	(label "MDSC"
+		(at 133.35 106.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "82b28b40-3440-4a73-a86c-cdee90890c82")
+	)
+	(label "DSC"
+		(at 143.51 97.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "af9cb8f3-a594-4f77-b7d1-4405e1713fd8")
+	)
+	(global_label "DISCHARGE"
+		(shape input)
+		(at 113.03 85.09 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "563f38ed-9aba-4b7a-bc4c-8ae82c9435bb")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 99.5824 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "BATH"
+		(shape input)
+		(at 113.03 81.28 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5843428b-7bc2-4e10-a84f-5efa641b9d6e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 105.3881 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 142.24 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "035714c9-ee59-4d03-bbeb-4deb73a82178")
+		(property "Reference" "R69"
+			(at 146.05 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 145.796 112.014 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 140.462 110.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 142.24 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 142.24 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9fea9af2-9eb6-4742-9f42-f659f536f63c")
+		)
+		(pin "2"
+			(uuid "acf67e2f-2a0c-4fbe-83a0-139bd40454ec")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R69")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 172.72 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0429d292-2367-4cfb-88e2-20d479db0966")
+		(property "Reference" "R73"
+			(at 176.53 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 176.276 112.014 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 170.942 110.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 172.72 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 172.72 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d3f06559-9a15-40d6-b034-dde014f9f7e2")
+		)
+		(pin "2"
+			(uuid "5a7cddbf-da60-43cf-88f9-bc2ba4ea69b5")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R73")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 111.76 106.68 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "05ff052f-ddf4-425f-97d5-cf47e0feafab")
+		(property "Reference" "C20"
+			(at 109.474 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "47nF"
+			(at 108.966 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 107.188 127.762 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C307339"
+			(at 111.76 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 111.76 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 113.792 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "a1b195fa-b5ab-4053-ae31-15a0fece4208")
+		)
+		(pin "1"
+			(uuid "2be4bd7e-0e5a-4b54-9835-c24ccf1f4397")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "C20")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 118.11 106.68 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0bfeb548-624b-4b80-bce9-83aeef115772")
+		(property "Reference" "R22"
+			(at 121.92 105.918 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10K"
+			(at 122.174 108.204 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 116.332 106.68 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 118.11 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 118.11 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1a49ff82-100f-4db5-8c12-761b8583a3dc")
+		)
+		(pin "2"
+			(uuid "a6429592-e5fa-447c-a5d5-065ad7fc7001")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R22")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 157.48 102.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "29163129-9471-4ce8-8886-df3789c8cf77")
+		(property "Reference" "R63"
+			(at 161.29 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 161.036 104.394 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 155.702 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 157.48 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 157.48 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0f92a7ea-b4e7-4f15-856c-6378733ba51c")
+		)
+		(pin "2"
+			(uuid "1970f815-050a-4a4e-ae4e-67e7e98c748b")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R63")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 149.86 102.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2d6d0cc8-ff86-4c7b-a1f4-63bc5e522a81")
+		(property "Reference" "R62"
+			(at 153.67 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 153.416 104.394 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 148.082 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 149.86 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 149.86 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0226438f-ef03-4d3e-98a8-7fb97b0f545a")
+		)
+		(pin "2"
+			(uuid "f9b2fd90-ae09-4eb4-9cea-fabcd96a154e")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R62")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 165.1 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3267e7b0-5069-4115-975e-acfef97f47d2")
+		(property "Reference" "R72"
+			(at 168.91 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 168.656 112.014 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 163.322 110.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 165.1 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 165.1 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5fa1592f-bb9c-430e-b622-001c606ce101")
+		)
+		(pin "2"
+			(uuid "26a4559d-c391-4417-99cb-baa65b134b9e")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R72")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 125.73 86.36 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "37d8c130-a5bd-4565-b309-39d47655ba0b")
+		(property "Reference" "R21"
+			(at 123.698 86.36 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10K"
+			(at 125.73 86.36 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 123.952 86.36 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 125.73 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 125.73 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f63ce81b-2e60-4358-830a-9328ec7767f9")
+		)
+		(pin "2"
+			(uuid "2834cf5d-aee0-4b6c-8b98-64d83aea8c1f")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 142.24 102.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "478ce306-ad16-4653-a69c-836b6e1b604e")
+		(property "Reference" "R61"
+			(at 146.05 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 145.796 103.632 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 140.462 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 142.24 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 142.24 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "00ed6dee-7bd2-41b9-b93a-b8b303cda729")
+		)
+		(pin "2"
+			(uuid "ecf038e0-3db8-43d2-a11e-0bd73548ff01")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R61")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 157.48 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "52773029-d1a9-4926-9305-28072957ea1d")
+		(property "Reference" "R71"
+			(at 161.29 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 161.036 112.014 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 155.702 110.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 157.48 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 157.48 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d11f35f4-abfd-48cb-aa1c-fbfcac8e547c")
+		)
+		(pin "2"
+			(uuid "15a8c0e0-e0e7-4776-a2ce-367b37e19e14")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R71")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 104.14 95.25 270)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "59e12d8c-5cb5-49eb-a564-1b74fdf3ad15")
+		(property "Reference" "D5"
+			(at 100.076 93.726 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LED"
+			(at 100.076 95.758 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric"
+			(at 104.14 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 104.14 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 104.14 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 104.14 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ba9d749f-51e9-4780-8d05-54bdebb78779")
+		)
+		(pin "2"
+			(uuid "ecea24d1-71a9-4855-875c-9d8eb9686555")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "D5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 172.72 102.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "738f5375-c795-49c4-8ae4-d208b8e53aae")
+		(property "Reference" "R65"
+			(at 176.53 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 176.276 104.394 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 170.942 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 172.72 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 172.72 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ca81012d-bc0d-4f15-852c-e4a22fa587d2")
+		)
+		(pin "2"
+			(uuid "55deb7e0-e6d4-400b-979c-995565762d3e")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R65")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 104.14 107.95 0)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "74844144-61e8-43ff-898a-14359144a766")
+		(property "Reference" "R52"
+			(at 100.838 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1K"
+			(at 101.092 108.712 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 102.362 107.95 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C11702"
+			(at 104.14 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 104.14 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f254dec4-3d90-4c74-83c0-2b51c38157df")
+		)
+		(pin "2"
+			(uuid "e3813562-5030-47a3-97cd-bbd79e0c86bb")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R52")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 180.34 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "818ec8f7-7006-4eb3-b2a3-d8bfb564ccee")
+		(property "Reference" "R74"
+			(at 184.15 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 183.896 112.014 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 178.562 110.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 180.34 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 180.34 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f99001ea-701f-40fc-a452-84471005b4a0")
+		)
+		(pin "2"
+			(uuid "9dfb3f64-65bd-44da-8648-e5644f353e15")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R74")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 195.58 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8ed1d74c-9ac1-4522-8790-cd46d56eba60")
+		(property "Reference" "R76"
+			(at 199.39 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 199.136 112.014 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 193.802 110.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 195.58 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 195.58 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5e6f6bb8-e045-4025-a30c-4fba9ec60fe0")
+		)
+		(pin "2"
+			(uuid "eebf39ab-b05d-4a56-a87c-f237a6ea887c")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R76")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 125.73 116.84 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8ffd0044-1a1b-4e02-b80c-f85e52ef67e7")
+		(property "Reference" "#PWR03"
+			(at 125.73 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 127.762 118.618 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 125.73 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 125.73 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 125.73 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4614c740-29d8-4c34-b677-34c87f490656")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "#PWR03")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 187.96 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "9a31957f-f2a4-4d9e-8a86-dfd287786e12")
+		(property "Reference" "R75"
+			(at 191.77 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 191.516 112.014 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 186.182 110.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 187.96 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 187.96 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "84045d82-b8b5-4262-8150-e43a494f937f")
+		)
+		(pin "2"
+			(uuid "9a556060-8d36-4f47-95e4-0151597d2289")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R75")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 180.34 102.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "9b2fcaf6-9a64-460d-8c9d-188fd7158b5e")
+		(property "Reference" "R66"
+			(at 184.15 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 183.896 104.394 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 178.562 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 180.34 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 180.34 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "57ccb1e1-d9f0-455e-93a2-74b11c60b437")
+		)
+		(pin "2"
+			(uuid "8aa7bb70-e6fa-4c0b-aaf2-0c1a998ecb42")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R66")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_FET:AO3400A")
+		(at 123.19 101.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ad72eb34-c5e4-44b8-b71b-9c89f26765db")
+		(property "Reference" "Q2"
+			(at 128.27 101.092 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "AO3400A"
+			(at 128.27 103.378 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 128.27 103.505 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.aosmd.com/pdfs/datasheet/AO3400A.pdf"
+			(at 128.27 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Description" "30V Vds, 5.7A Id, N-Channel MOSFET, SOT-23"
+			(at 123.19 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB" "C20917"
+			(at 123.19 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "7f0eb174-4637-45ce-bfd2-710549d94164")
+		)
+		(pin "1"
+			(uuid "f6997100-2db2-449a-867e-0d178db23665")
+		)
+		(pin "3"
+			(uuid "312c750b-8613-4d16-9025-ebc1300ad8ea")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "Q2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 165.1 102.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c0dbaf35-a300-4557-a6a0-7faa31bd6c08")
+		(property "Reference" "R64"
+			(at 168.91 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 168.656 104.394 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 163.322 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 165.1 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 165.1 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "436308cb-a895-42cb-9761-5fffc5b3721d")
+		)
+		(pin "2"
+			(uuid "c469e197-7f1c-403f-80c8-fdbb36a1e803")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R64")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 118.11 95.25 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c30f165b-9a5a-4593-ba93-5cccdac4c787")
+		(property "Reference" "R23"
+			(at 114.554 94.234 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "120R"
+			(at 114.046 96.266 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 119.888 95.25 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C25079"
+			(at 118.11 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 118.11 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "35ea05d2-994d-496e-91c6-d05189e0cb65")
+		)
+		(pin "2"
+			(uuid "4e80a680-4fdd-4f55-8698-5ddc85a95a82")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R23")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 149.86 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c5be424d-18ad-4c15-8f72-9f02dd15c944")
+		(property "Reference" "R70"
+			(at 153.67 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 153.416 112.014 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 148.082 110.49 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 149.86 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 149.86 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ec6dcfa4-063a-4420-9852-726598b82b51")
+		)
+		(pin "2"
+			(uuid "0059ca8a-e4a0-4e1a-b84f-00504fc40138")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R70")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "parts:AO44XX")
+		(at 135.89 91.44 0)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ce5c6060-8a70-44dc-a634-5dcf4e3b163d")
+		(property "Reference" "Q1"
+			(at 141.732 89.662 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "AO4435"
+			(at 141.732 93.472 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_SO:SOP-8_3.76x4.96mm_P1.27mm"
+			(at 140.716 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#cha_MOSFETs"
+			(at 135.89 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "C2944310"
+			(at 136.144 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "8784c114-a1a9-4e66-a405-5ddd1e315e3c")
+		)
+		(pin "2"
+			(uuid "758448ca-0e66-4b42-a816-2154973bae7a")
+		)
+		(pin "7"
+			(uuid "8cac0a4e-169b-4607-a848-a0b340b7fdbd")
+		)
+		(pin "5"
+			(uuid "561b4846-8e20-47c4-87d0-50f50e62fd69")
+		)
+		(pin "3"
+			(uuid "b1946668-5818-4c80-89f3-83d8fc155050")
+		)
+		(pin "8"
+			(uuid "aaa6f297-c5c0-479c-8510-1a1373466697")
+		)
+		(pin "1"
+			(uuid "d28f21f1-d2b3-4c6b-96a2-7dab48adaf08")
+		)
+		(pin "6"
+			(uuid "ac1eef51-6511-48d3-b583-397ebb06de5b")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "Q1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 187.96 102.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ed26fe89-9f1c-4c31-b966-f15e58e6d50e")
+		(property "Reference" "R67"
+			(at 191.77 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 191.516 104.394 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 186.182 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 187.96 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 187.96 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5bfc9490-ba34-4155-85d5-64d55308dd30")
+		)
+		(pin "2"
+			(uuid "1d5c6870-610a-41ba-a2ca-28bda3a97b97")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R67")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 195.58 102.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "fca1063d-0088-41f6-a318-b921174b2bb8")
+		(property "Reference" "R68"
+			(at 199.39 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3.3R"
+			(at 199.136 104.394 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 193.802 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "C42415571"
+			(at 195.58 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2W 3.3Ω SMD ±1% ±50ppm/℃ 2512"
+			(at 195.58 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a4baede7-e16c-4160-a808-51497a163638")
+		)
+		(pin "2"
+			(uuid "81af6fad-6ce4-4572-9ad3-5864fc70e297")
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555/a94cfe49-edd9-41ce-965f-dcfeedc17cff"
+					(reference "R68")
+					(unit 1)
+				)
+			)
+		)
+	)
+)

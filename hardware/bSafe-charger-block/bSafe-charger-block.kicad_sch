@@ -1,0 +1,308 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "afb69523-433d-4a3c-b320-1356c8e0e555")
+	(paper "A4")
+	(lib_symbols)
+	(sheet
+		(at 105.41 78.74)
+		(size 25.4 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "34e73a48-ef64-4898-b464-d408ea6062a0")
+		(property "Sheetname" "config"
+			(at 105.41 78.0284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "config.kicad_sch"
+			(at 105.41 92.0246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555"
+					(page "7")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 138.43 78.74)
+		(size 25.4 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "5435c0d8-10da-46c5-9cc5-033749448b82")
+		(property "Sheetname" "interface"
+			(at 138.43 78.0284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "interface.kicad_sch"
+			(at 138.43 92.0246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555"
+					(page "7")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 72.39 78.74)
+		(size 25.4 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "582c92c6-6d2b-4e85-87bd-881cd6c3f9e1")
+		(property "Sheetname" "charge"
+			(at 72.39 78.0284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "charge.kicad_sch"
+			(at 72.39 92.0246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 72.39 99.06)
+		(size 25.4 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "a94cfe49-edd9-41ce-965f-dcfeedc17cff")
+		(property "Sheetname" "discharge"
+			(at 72.39 98.3484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "discharge.kicad_sch"
+			(at 72.39 112.3446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555"
+					(page "8")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 105.41 58.42)
+		(size 25.4 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "b9ebdb73-b591-4312-96bb-8a2b53b982a5")
+		(property "Sheetname" "supply"
+			(at 105.41 57.7084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "supply.kicad_sch"
+			(at 105.41 71.7046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555"
+					(page "8")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 138.43 58.42)
+		(size 25.4 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "e601361b-727f-4d24-8bfe-ad504c0181bf")
+		(property "Sheetname" "logic"
+			(at 138.43 57.7084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "logic.kicad_sch"
+			(at 138.43 71.7046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 72.39 58.42)
+		(size 25.4 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "ee392766-1282-440d-be84-47fac2dc8aba")
+		(property "Sheetname" "input"
+			(at 72.39 57.7084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "inout.kicad_sch"
+			(at 72.39 71.7046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "bSafe-charger-block"
+				(path "/afb69523-433d-4a3c-b320-1356c8e0e555"
+					(page "6")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)

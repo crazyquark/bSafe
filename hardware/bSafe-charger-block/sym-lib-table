@@ -1,0 +1,6 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "parts")(type "KiCad")(uri "C:/Users/Paul/Documents/GitHub/bSafe/libraries/parts.kicad_sym")(options "")(descr ""))
+  (lib (name "Espressif")(type "KiCad")(uri "C:/Users/Paul/Documents/GitHub/bSafe/libraries/Espressif.kicad_sym")(options "")(descr ""))
+  (lib (name "spacescape")(type "KiCad")(uri "C:/Users/Paul/Documents/GitHub/bSafe/libraries/spacescape.kicad_sym")(options "")(descr ""))
+)

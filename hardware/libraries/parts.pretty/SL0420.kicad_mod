@@ -1,0 +1,216 @@
+(footprint "SL0420"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "Inductor, APV, ANR5020, 5.0x5.0x2.0mm, (http://en.apvind.com/public/upload/20240407/3375c395e460caa8519b4d637d9113ce.pdf), generated with kicad-footprint-generator gen_inductor.py")
+	(tags "Inductor wirewound power shielded")
+	(property "Reference" "L2"
+		(at 0 -3.5 0)
+		(layer "F.SilkS")
+		(uuid "1d71183b-8477-47e7-9097-ccb13214f418")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "2.2uH"
+		(at 0 3.5 0)
+		(layer "F.Fab")
+		(uuid "bee41ba5-7185-4be5-88f6-3bf1b9e7e759")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8603187355977469952"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "8b52a485-54df-4aaa-b720-8da70f714f98")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "2.2uH 4.5A 5A ±20% SMD,4.5x4.1mm Inductors (SMD) ROHS"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "9f57d240-7c4f-450d-8a3e-e190c8005508")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "JLCPCB" "C22463806"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a2a7afd5-1648-4758-87e4-f2cab23373af")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -2.75 -2.3)
+		(end -2.75 -1.9)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "cfa7a2b3-b08d-4c68-ad3e-f892cd04c6e9")
+	)
+	(fp_line
+		(start -2.75 -2.3)
+		(end 2.77 -2.3)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "405a3929-f518-4bb8-acbc-c89d8c107adc")
+	)
+	(fp_line
+		(start -2.75 2.3)
+		(end -2.75 1.9)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "31b1fe8e-fea3-4986-808d-1a9bb36337c6")
+	)
+	(fp_line
+		(start -2.75 2.3)
+		(end 2.77 2.3)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "1133de51-c925-4e16-8989-98a9973ff97e")
+	)
+	(fp_line
+		(start 2.77 -2.3)
+		(end 2.77 -1.9)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "061a83e2-0dfd-4df9-a38c-0d553eea6875")
+	)
+	(fp_line
+		(start 2.77 2.3)
+		(end 2.77 1.9)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "3ac7f59f-cb94-44eb-8c97-64087b3e148c")
+	)
+	(fp_rect
+		(start -2.75 -2.3)
+		(end 2.75 2.3)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "f96d2904-4b59-4019-b8cf-f5d3e5e5dbef")
+	)
+	(fp_line
+		(start -2.5 -2.1)
+		(end -2.5 2.1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "5423a578-1265-451a-bc0b-b1c03d0cc806")
+	)
+	(fp_line
+		(start 2.5 -2.1)
+		(end -2.5 -2.1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "200c9765-11c7-4b6c-8ae2-7a7a8315d756")
+	)
+	(fp_line
+		(start 2.5 2.1)
+		(end -2.5 2.1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "fc49581f-058f-40a9-a404-0aa39b8d7543")
+	)
+	(fp_line
+		(start 2.5 2.1)
+		(end 2.5 -2.1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "b6f4218c-ef39-4b70-9874-ce4a27233b60")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "c6fa9160-3174-4862-8eee-940a4f040020")
+		(effects
+			(font
+				(size 0.5 0.5)
+				(thickness 0.075)
+			)
+		)
+	)
+	(pad "1" smd roundrect
+		(at -1.85 0)
+		(size 1.5 2.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.178571)
+		(uuid "16b11be8-cb00-49ce-bdf2-220b3dde8686")
+	)
+	(pad "2" smd roundrect
+		(at 1.85 0)
+		(size 1.5 2.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.178571)
+		(uuid "e546c16c-25fb-4a48-849c-3900845921e9")
+	)
+	(embedded_fonts no)
+	(model "${KICAD9_3DMODEL_DIR}/Inductor_SMD.3dshapes/L_APV_ANR5020.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
