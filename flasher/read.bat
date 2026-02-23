@@ -1,0 +1,1 @@
+./esptool.exe --chip esp32c3 --baud 460800 read_flash 0 0x400000 bSafeV1.bin

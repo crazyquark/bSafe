@@ -1,0 +1,1 @@
+./esptool.exe --chip esp32c3 --baud 460800 write_flash 0x0 bSafeV1.bin

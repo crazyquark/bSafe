@@ -1,0 +1,25 @@
+# sdkconfig.defaults — charger_fw (ESP32-C3, IDF 5.x)
+
+# Target — set via: idf.py set-target esp32c3
+# CONFIG_IDF_TARGET="esp32c3"
+
+# --- Flash ---
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_PARTITION_TABLE_SINGLE_APP=y
+
+# --- FreeRTOS ---
+CONFIG_FREERTOS_HZ=1000
+
+# --- I2C new driver (IDF 5.x) ---
+CONFIG_I2C_ENABLE_DEBUG_LOG=n
+
+# --- TWAI ---
+CONFIG_TWAI_ISR_IN_IRAM=n
+CONFIG_TWAI_ENABLE_DEBUG_LOG=n
+
+# --- Log level ---
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+CONFIG_LOG_MAXIMUM_LEVEL_DEBUG=y
+
+# --- Stack sizes ---
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192

@@ -1,0 +1,25 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "board.c"
+        "app.c"
+        "nvs_settings.c"
+    INCLUDE_DIRS
+        "."
+    REQUIRES
+        "drivers"
+        "esp_driver_i2c"
+        "esp_driver_twai"
+        "esp_driver_gpio"
+        "esp_driver_ledc"
+        "esp_driver_rmt"
+        "esp_lcd"
+        "freertos"
+        "log"
+        "nvs_flash"
+    PRIV_REQUIRES
+        "esp_timer"
+        "esp_adc"
+        "esp_driver_ledc"
+        "esp_driver_tsens"
+)

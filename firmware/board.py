@@ -1,5 +1,3 @@
-# board.py (mock-capable)
-
 from machine import Pin, I2C
 import time
 
@@ -10,15 +8,13 @@ from drivers.tca9535 import TCA9535
 from drivers.ina226 import INA226
 from drivers.bq25895 import BQ25895
 
-# Mocks
-from mocks import MockINA226, MockBQ25895, MockInputs
-
-
 class Board:
     def __init__(self):
         self.i2c = None
+        
+        self.btn_ok = Pin(9, Pin.IN)  # GPIO9, active-low
 
-        # Devices (real or mock)
+        # Devices
         self.exp = None
         self.ina_batt = None
         self.ina_sys = None
@@ -30,11 +26,11 @@ class Board:
 
         # Inputs
         self.pin_io_int = None
-        self.inputs = MockInputs()  # always available, used when expander not present
 
         # cached
         self.in0 = 0xFF
         self.in1 = 0xFF
+        self._btn_prev = {"menu": False, "left": False, "right": False, "ok": False}
 
     def init_i2c(self):
         self.i2c = I2C(
@@ -57,10 +53,10 @@ class Board:
     def init_expander(self):
         addrs = self._scan()
         if config.TCA9535_ADDR not in addrs:
-            print("WARN: TCA9535 not found at 0x{:02X}. Using mock inputs.".format(config.TCA9535_ADDR))
+            print("WARN: TCA9535 not found at 0x{:02X}".format(config.TCA9535_ADDR))
             self.exp = None
             self.has_exp = False
-            self.pin_io_int = Pin(config.PIN_IO_INT, Pin.IN, Pin.PULL_UP)
+            # self.pin_io_int = Pin(1, Pin.IN)
             return False
 
         try:
@@ -76,10 +72,10 @@ class Board:
             self.in0, self.in1 = self.exp.read_all()
             self.has_exp = True
         except Exception as e:
-            print("WARN: TCA9535 init failed. Using mock inputs:", e)
+            print("WARN: TCA9535 init failed.", e)
             self.exp = None
             self.has_exp = False
-        self.pin_io_int = Pin(config.PIN_IO_INT, Pin.IN, Pin.PULL_UP)
+        # self.pin_io_int = Pin(1, Pin.IN)
         return self.has_exp
 
     def _set_pin(self, pin, value):
@@ -88,8 +84,57 @@ class Board:
         self.exp.write_pin(pin, 1 if value else 0)
 
     def int_asserted(self) -> bool:
-        # In mock mode, no INT pin events. We'll just poll edges.
         return self.pin_io_int is not None and self.pin_io_int.value() == 0
+    
+    def _refresh_exp_inputs(self):
+        if self.exp is None:
+            return
+        try:
+            self.in0, self.in1 = self.exp.read_all()
+        except:
+            # keep old values on read failure
+            pass
+
+    def _pin_is_low(self, pin) -> bool:
+        """
+        Reads cached expander inputs and returns True if that expander pin is LOW.
+        This matches your hardware: 10K pull-ups, button pulls to GND when pressed.
+        """
+        # If your TCA9535 driver uses 0..15 pin numbering, this works:
+        if pin < 8:
+            return ((self.in0 >> pin) & 1) == 0
+        else:
+            b = pin - 8
+            return ((self.in1 >> b) & 1) == 0
+
+    def poll_button_edges(self):
+        # If expander present, refresh its cached inputs (polling is simplest/reliable)
+        if getattr(self, "has_exp", False) and self.exp is not None:
+            self._refresh_exp_inputs()
+
+            menu_pressed  = self._exp_pin_low(config.P_BTN1)  # BTN1 = MENU
+            left_pressed  = self._exp_pin_low(config.P_BTN2)  # BTN2 = LEFT
+            right_pressed = self._exp_pin_low(config.P_BTN3)  # BTN3 = RIGHT
+
+        # OK is ALWAYS GPIO9 (BOOT), active-low
+        ok_pressed = (self.btn_ok.value() == 0)
+
+        pressed = {
+            "menu": menu_pressed,
+            "left": left_pressed,
+            "right": right_pressed,
+            "ok": ok_pressed,
+        }
+
+        # Edge detect: only emit press events
+        edges = {}
+        for k, v in pressed.items():
+            prev = self._btn_prev.get(k, False)
+            edges[k] = (v and not prev)
+            self._btn_prev[k] = v
+
+        return edges
+
 
     # -------------------------
     # INA226 (optional)
@@ -105,12 +150,10 @@ class Board:
                 self.ina_batt.calibrate_for_max_current(max_current_a)
                 self.has_ina_batt = True
             except Exception as e:
-                print("WARN: INA226 batt init failed. Using mock INA:", e)
-                self.ina_batt = MockINA226("batt")
+                print("WARN: INA226 batt init failed.", e)
                 self.has_ina_batt = False
         else:
-            print("WARN: INA226 batt not found at 0x{:02X}. Using mock INA.".format(config.INA226_ADDR_BATT))
-            self.ina_batt = MockINA226("batt")
+            print("WARN: INA226 batt not found at 0x{:02X}.".format(config.INA226_ADDR_BATT))
             self.has_ina_batt = False
 
         if config.INA226_ADDR_SYS in addrs:
@@ -121,12 +164,10 @@ class Board:
                 self.ina_sys.calibrate_for_max_current(max_current_a)
                 self.has_ina_sys = True
             except Exception as e:
-                print("WARN: INA226 sys init failed. Using mock INA:", e)
-                self.ina_sys = MockINA226("sys")
+                print("WARN: INA226 sys init failed.", e)
                 self.has_ina_sys = False
         else:
-            print("WARN: INA226 sys not found at 0x{:02X}. Using mock INA.".format(config.INA226_ADDR_SYS))
-            self.ina_sys = MockINA226("sys")
+            print("WARN: INA226 sys not found at 0x{:02X}.".format(config.INA226_ADDR_SYS))
             self.has_ina_sys = False
 
     # -------------------------
@@ -141,12 +182,10 @@ class Board:
                 self.bq.set_hiz(False)
                 self.has_bq = True
             except Exception as e:
-                print("WARN: BQ25895 init failed. Using mock BQ:", e)
-                self.bq = MockBQ25895()
+                print("WARN: BQ25895 init failed.", e)
                 self.has_bq = False
         else:
-            print("WARN: BQ25895 not found at 0x{:02X}. Using mock BQ.".format(config.BQ25895_ADDR))
-            self.bq = MockBQ25895()
+            print("WARN: BQ25895 not found at 0x{:02X}.".format(config.BQ25895_ADDR))
             self.has_bq = False
 
     def init_all(self, max_current_a=5.0):
@@ -159,15 +198,7 @@ class Board:
     # Inputs unified API
     # -------------------------
     def poll_button_edges(self):
-        """
-        Returns edge events for UI/navigation:
-          dict with keys: menu,left,right,ok (booleans, edge-triggered)
-        In real hardware mode, we can later implement expander INT + change decode.
-        For now, if expander is missing, we rely on MockInputs edges.
-        """
         ev = {"menu": False, "left": False, "right": False, "ok": False}
-
-        # mock edges
         edges = self.inputs.poll_edges()
         for name, pressed in edges:
             if not pressed:
@@ -199,10 +230,6 @@ class Board:
     # Backwards-compatibility helpers (older UI harness)
     # -------------------------
     def read_inputs(self):
-        """
-        Compatibility: returns (in0, in1) like the expander would.
-        In mock mode, returns pulled-up defaults (0xFF, 0xFF).
-        """
         if self.exp is None:
             self.in0, self.in1 = 0xFF, 0xFF
             return self.in0, self.in1
@@ -210,10 +237,6 @@ class Board:
         return self.in0, self.in1
 
     def read_changes(self):
-        """
-        Compatibility: returns (chg0, chg1, new0, new1).
-        In mock mode there is no expander interrupt/change detect, so return zeros.
-        """
         if self.exp is None:
             return 0, 0, 0xFF, 0xFF
         chg0, chg1, new0, new1 = self.exp.read_changes()
