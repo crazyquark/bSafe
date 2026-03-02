@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "charger_fw",
-    "project_version":    "95f64ab-dirty",
+    "project_version":    "4eba2ce-dirty",
     "project_path":       "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw",
     "idf_path":           "C:/Espressif/frameworks/esp-idf-v5.5",
     "build_dir":          "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build",
@@ -1510,7 +1510,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "espressif__led_strip" ],
             "file": "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/src/libsrc.a",
-            "sources": [ "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/src/main.c", "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/src/board.c", "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/src/app.c", "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/src/nvs_settings.c" ],
+            "sources": [ "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/src/main.c", "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/src/board.c", "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/src/app.c", "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/src/nvs_settings.c", "C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/src/mitm_temp.c" ],
             "include_dirs": [ "." ]
         },
         "tcp_transport": {

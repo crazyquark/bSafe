@@ -13,6 +13,8 @@
 #include "nvs_settings.h"
 #include "config.h"
 
+#include "mitm_temp.h"
+
 static const char *TAG = "main";
 
 // -----------------------------------------------------------------------------
@@ -161,6 +163,10 @@ void app_main(void)
         nvs_settings_apply(&settings, &app);
     }
 
+    // MAN IN THE MIDDLE (MITM) USED FOR TMEP DEBUGGING
+    // mitm_temp_run(&board, &disp);   // never returns, replaces app_run()
+    // mitm_temp_run(&board, &disp, s_adc);  // replaces app_run()
+    
     // --- Run (never returns) ---
     app_run(&app);
 }

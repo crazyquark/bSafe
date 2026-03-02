@@ -1,1 +1,0 @@
-{"mode_can": true, "mode_usb": true, "lock_settings_on_net": false, "chemistry": "LFP", "parallel_cells": 1, "discharge_c_rate": 2.0, "discharge_target": "-100%", "cell_capacity_mah": 3000, "mode_wifi": false, "voltage_offset_mv": 0, "charge_c_rate": 0.5, "wait_mode": "NO_WAIT"}

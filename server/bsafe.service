@@ -1,0 +1,25 @@
+[Unit]
+Description=bSafe CAN Charger Control Server
+After=network-online.target
+Wants=network-online.target
+# Wait for CAN interface if it comes up via systemd-networkd
+After=sys-subsystem-net-devices-can0.device
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/opt/bsafe
+Environment=PYTHONUNBUFFERED=1
+Environment=CAN_CHANNEL=can0
+Environment=CAN_BITRATE=500000
+Environment=BSAFE_DB=/opt/bsafe/data/bsafe.db
+ExecStartPre=/bin/bash -c 'ip link set can0 up type can bitrate 500000 2>/dev/null || true'
+ExecStart=/opt/bsafe/venv/bin/python app.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bsafe
+
+[Install]
+WantedBy=multi-user.target

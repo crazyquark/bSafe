@@ -8,24 +8,18 @@
 #include "board.h"
 #include "display.h"
 #include "ui_demo.h"
+#include "esp_adc/adc_oneshot.h"
 
 // ---------------------------------------------------------------------------
 // NTC temperature constants (external probe on GPIO1)
 // ---------------------------------------------------------------------------
-#define EXT_R_PULL_OHM   10000.0f   // 10k pull-up to 3V3
-#define EXT_R0_OHM       89000.0f   // ~89k NTC @ 25C (measured)
-#define EXT_BETA_K       3950.0f
-#define EXT_T0_C         25.0f
-// Steinhart-Hart coefficients (calibrated in Python)
-#define EXT_SH_A  (-0.0006247654143591243f)
-#define EXT_SH_B  ( 0.0004308473967926403f)
-#define EXT_SH_C  (-0.0000007813696611701303f)
 
-// BQ25895 TS% to temp (internal thermistor)
-#define TS_R_PULLUP_OHM  7500.0f   // 10k||30k
-#define TS_R0_OHM        10000.0f
-#define TS_BETA_K        3435.0f
-#define TS_T0_C          25.0f
+#define SH_A  (1.668575e-03f)
+#define SH_B  (1.321981e-04f)
+#define SH_C  (3.128401e-07f)
+
+#define TS_R_PULLUP_OHM  10000.0f  // 10k pull-up to REGN
+#define EXT_R_PULL_OHM   10000.0f   // 10k pull-up to 3V3
 
 // ---------------------------------------------------------------------------
 // Thresholds
@@ -218,3 +212,4 @@ typedef struct {
 // ---------------------------------------------------------------------------
 void app_init(app_t *app, board_t *board, display_t *disp);
 void app_run(app_t *app);   // never returns
+extern adc_oneshot_unit_handle_t s_adc;

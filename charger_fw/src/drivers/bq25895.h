@@ -90,6 +90,9 @@ esp_err_t bq25895_set_fast_charge_current_ma(bq25895_t *dev, int ma);
 esp_err_t bq25895_set_precharge_current_ma(bq25895_t *dev, int ma);
 esp_err_t bq25895_set_termination_current_ma(bq25895_t *dev, int ma);
 esp_err_t bq25895_set_charge_voltage_mv(bq25895_t *dev, int mv);
+esp_err_t bq25895_set_batlowv(bq25895_t *dev, float threshold_v);
+// threshold_v: 2.8 or 3.0 — sets BATLOWV bit in REG06 [1]
+// 0 = 2.8V (bit clear), 1 = 3.0V (bit set)
 
 // ADC
 esp_err_t bq25895_adc_start_oneshot(bq25895_t *dev);

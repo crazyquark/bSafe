@@ -23,8 +23,8 @@
 // Shunt / circuit resistances
 // -----------------------------------------------------------------------------
 #define SHUNT_RESISTANCE_OHMS   0.008f      // 8 mΩ
-#define CIRCUIT_R_CHARGE_MOHM   25
-#define CIRCUIT_R_DISCHG_MOHM   25
+#define CIRCUIT_R_CHARGE_MOHM   30
+#define CIRCUIT_R_DISCHG_MOHM   30
 #define DISCHARGE_RESISTOR_OHMS 0.83f
 
 // -----------------------------------------------------------------------------

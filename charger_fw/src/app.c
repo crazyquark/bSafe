@@ -61,7 +61,7 @@ static float _read_mcu_temp_c(void)
 // ---------------------------------------------------------------------------
 // External NTC (GPIO1, ADC)
 // ---------------------------------------------------------------------------
-static adc_oneshot_unit_handle_t s_adc = NULL;
+adc_oneshot_unit_handle_t s_adc = NULL;
 static bool s_adc_ready = false;
 
 static void _ext_adc_init(void)
@@ -85,7 +85,6 @@ static bool _read_ext_temp_c(float *out_c)
 {
     if (!s_adc_ready || !out_c) return false;
 
-    // 20-sample average
     int64_t acc = 0;
     for (int i = 0; i < 20; i++) {
         int raw = 0;
@@ -93,14 +92,16 @@ static bool _read_ext_temp_c(float *out_c)
         acc += raw;
         vTaskDelay(pdMS_TO_TICKS(1));
     }
-    float raw = (float)(acc / 20);
-    if (raw <= 5.0f || raw >= 4090.0f) return false;
+    float adc = (float)acc / 20.0f;
+    if (adc <= 5.0f || adc >= 4090.0f) return false;
 
-    float r_ntc = EXT_R_PULL_OHM * (raw / (4095.0f - raw));
+    float r_ntc = 10000.0f * (adc / (4095.0f - adc));
     if (r_ntc <= 1.0f) return false;
 
-    float lnr = logf(r_ntc);
-    float inv_t = EXT_SH_A + EXT_SH_B * lnr + EXT_SH_C * (lnr * lnr * lnr);
+    float lnR  = logf(r_ntc);
+    float inv_t = SH_A + SH_B * lnR + SH_C * lnR * lnR * lnR;
+    if (inv_t <= 0.0f) return false;
+
     *out_c = (1.0f / inv_t) - 273.15f;
     return true;
 }
@@ -111,15 +112,21 @@ static bool _read_ext_temp_c(float *out_c)
 static bool _ts_pct_to_temp_c(float ts_pct, float *out_c)
 {
     float x = ts_pct / 100.0f;
-    if (x < 1e-6f)  x = 1e-6f;
+    if (x < 1e-6f)     x = 1e-6f;
     if (x > 0.999999f) x = 0.999999f;
+
+    // BQ TS pin: R_ntc to GND, internal ~5.24k pullup to REGN
     float r_ntc = TS_R_PULLUP_OHM * (x / (1.0f - x));
-    float t0_k = TS_T0_C + 273.15f;
-    float inv_t = (1.0f / t0_k) + (1.0f / TS_BETA_K) * logf(r_ntc / TS_R0_OHM);
+    if (r_ntc <= 1.0f) return false;
+
+    // Same Steinhart-Hart as external NTC — same part, same coefficients
+    float lnR   = logf(r_ntc);
+    float inv_t = SH_A + SH_B * lnR + SH_C * lnR * lnR * lnR;
+    if (inv_t <= 0.0f) return false;
+
     *out_c = (1.0f / inv_t) - 273.15f;
     return true;
 }
-
 // ---------------------------------------------------------------------------
 // LEDC (discharge / measure PWM on GPIO0)
 // ---------------------------------------------------------------------------
@@ -543,7 +550,7 @@ static void _confirm_edit(app_t *app)
         else if (strcmp(action, "Discharge") == 0) app->page = PAGE_DISCHARGE;
         else if (strcmp(action, "Measure")   == 0) app->page = PAGE_MEASURE;
         else if (strcmp(action, "Status")    == 0) app->page = PAGE_STATUS;
-        else if (strcmp(action, "CAN")       == 0) app->page = PAGE_CAN;
+        else if (strcmp(action, "CAN sink")       == 0) app->page = PAGE_CAN;
         app->mode = MODE_PAGE;
     } else {
         // Persist changed value to NVS (no-op if g_skip_nvs)
@@ -897,14 +904,21 @@ static void _render_charge(app_t *app, uint32_t now_ms)
 
     float ichg_a = 0.0f;
     bool  ichg_ok = false;
-    if (app->board->has_bq &&
-        (strcmp(mode,"PRE")==0 || strcmp(mode,"CC")==0 || strcmp(mode,"CV")==0)) {
-        int ichg_ma = 0;
-        if (bq25895_read_charge_current_ma(&app->board->bq, &ichg_ma) == ESP_OK) {
-            ichg_a = ichg_ma / 1000.0f;
+    if (app->board->has_ina_batt) {
+        ina226_reading_t r;
+        if (ina226_read_all(&app->board->ina_batt, &r) == ESP_OK) {
+            ichg_a = fabsf(r.current_a);
             ichg_ok = true;
         }
     }
+    // if (app->board->has_bq &&
+    //     (strcmp(mode,"PRE")==0 || strcmp(mode,"CC")==0 || strcmp(mode,"CV")==0)) {
+    //     int ichg_ma = 0;
+    //     if (bq25895_read_charge_current_ma(&app->board->bq, &ichg_ma) == ESP_OK) {
+    //         ichg_a = ichg_ma / 1000.0f;
+    //         ichg_ok = true;
+    //     }
+    // }
 
     char line[20];
     snprintf(line, sizeof(line), "S:%s", status);
@@ -1142,56 +1156,149 @@ typedef struct {
     uint16_t dsc_pulse_ms;
     uint16_t settle_remaining_min;
     bool     req_immediate_vbat;
+    uint8_t  req_frame_type;
+    uint8_t  precharge_thresh;  // 0=no change, 1=2.8V, 2=3.0V
 } can_cmd_t;
 
-static can_cmd_t  s_can_cmd        = { CAN_MODE_WAIT, 30, 5000, 0, false };
+static can_cmd_t  s_can_cmd        = { CAN_MODE_WAIT, 30, 5000, 0, false, 0, 0};
 static uint32_t   s_can_last_rx_ms = 0;
 static uint32_t   s_can_tx_next_ms = 0;
 
 static void _can_parse_cmd(const twai_message_t *rx, can_cmd_t *out)
 {
-    out->mode             = (rx->data_length_code >= 1) ? (rx->data[0] & 0x07) : CAN_MODE_WAIT;
-    out->dsc_duty_pct     = (rx->data_length_code >= 2) ? rx->data[1] : 30;
-    out->dsc_pulse_ms     = (rx->data_length_code >= 4)
-                            ? ((uint16_t)rx->data[2] << 8 | rx->data[3]) : 5000;
-    out->settle_remaining_min = (rx->data_length_code >= 6)
-                            ? ((uint16_t)rx->data[4] << 8 | rx->data[5]) : 0;
-    out->req_immediate_vbat = (rx->data_length_code >= 7) ? (rx->data[6] & 0x01) : false;
+    out->mode                   = (rx->data_length_code >= 1) ? (rx->data[0] & 0x07) : CAN_MODE_WAIT;
+    out->dsc_duty_pct           = (rx->data_length_code >= 2) ? rx->data[1] : 30;
+    out->dsc_pulse_ms           = (rx->data_length_code >= 4)
+                                ? ((uint16_t)rx->data[2] << 8 | rx->data[3]) : 5000;
+    out->settle_remaining_min   = (rx->data_length_code >= 6)
+                                ? ((uint16_t)rx->data[4] << 8 | rx->data[5]) : 0;
+    // out->req_immediate_vbat = (rx->data_length_code >= 7) ? (rx->data[6] & 0x01) : false;
+    out->req_immediate_vbat     = (rx->data_length_code >= 7) ? (rx->data[6] & 0x08) : false;
+    out->req_frame_type         = (rx->data_length_code >= 7) ? (rx->data[6] & 0x07) : 0;
+    out->precharge_thresh       = (rx->data_length_code >= 8) ? rx->data[7] : 0;
+
 }
 
-static void _can_tx_status(app_t *app, uint8_t mode_byte)
+// ---------------------------------------------------------------------------
+// CAN STATUS frame types
+// ---------------------------------------------------------------------------
+#define CAN_FRAME_TYPE_OP       0x00  // operational (2 Hz autonomous)
+#define CAN_FRAME_TYPE_TELEM    0x01  // extended telemetry (on request)
+#define CAN_FRAME_TYPE_IR       0x02  // IR + MCU temp (on request)
+#define CAN_FRAME_TYPE_IDENTITY 0x03  // identity (on request + CAN page entry)
+
+static void _can_tx_frame(app_t *app, uint8_t frame_type)
 {
     if (!app->board->has_twai) return;
+    int addr = (int)_get_float(app, "Address", 0);
+    uint32_t tx_id = CAN_ID_STATUS + (addr & 0x3F);
+    uint8_t data[8] = {0};
 
-    float vbat = 0.0f; bool vbat_ok = _read_vbat_v(app, &vbat);
-    float ibat = 0.0f;
-    if (app->board->has_ina_batt) {
-        ina226_reading_t r;
-        if (ina226_read_all(&app->board->ina_batt, &r) == ESP_OK) ibat = r.current_a;
+    switch (frame_type) {
+
+    case CAN_FRAME_TYPE_OP: {
+        // [0] frame_type  [1-2] vbat_mv  [3-4] ibat_ma  [5] flags
+        // [6] chrg_stat   [7] dsc_pct
+        float vbat = 0.0f; bool vbat_ok = _read_vbat_v(app, &vbat);
+        float ibat = 0.0f;
+        if (app->board->has_ina_batt) {
+            ina226_reading_t r;
+            if (ina226_read_all(&app->board->ina_batt, &r) == ESP_OK) ibat = r.current_a;
+        }
+        bq25895_status_t bq_st = {0};
+        bool has_bq_st  = _bq_try_read_status(app, &bq_st);
+        bool batt_present = vbat_ok && _battery_present(vbat);
+        uint16_t vbat_mv = vbat_ok ? (uint16_t)(vbat * 1000.0f) : 0;
+        int16_t  ibat_ma = (int16_t)(ibat * 1000.0f);
+        uint8_t  flags   = (app->chg_error_latched     ? 0x01 : 0)
+                         | (app->chg_full_latched       ? 0x02 : 0)
+                         | (has_bq_st && bq_st.power_good ? 0x04 : 0)
+                         | (batt_present                ? 0x08 : 0)
+                         | (app->chg_full_latched       ? 0x10 : 0); // mode_change_request
+        data[0] = CAN_FRAME_TYPE_OP;
+        data[1] = (uint8_t)(vbat_mv >> 8);
+        data[2] = (uint8_t)(vbat_mv & 0xFF);
+        data[3] = (uint8_t)((uint16_t)ibat_ma >> 8);
+        data[4] = (uint8_t)((uint16_t)ibat_ma & 0xFF);
+        data[5] = flags;
+        data[6] = has_bq_st ? bq_st.chrg_stat : 0;
+        data[7] = (uint8_t)app->dsc_pct;
+        break;
     }
 
-    bq25895_status_t bq_st = {0};
-    bool has_bq_st = _bq_try_read_status(app, &bq_st);
+    case CAN_FRAME_TYPE_TELEM: {
+        // [0] frame_type  [1-2] vbat_mv  [3-4] ibat_ma
+        // [5] rpm/50 (u8)  [6] bq_temp_i8  [7] reserved
+        float vbat = 0.0f; bool vbat_ok = _read_vbat_v(app, &vbat);
+        float ibat = 0.0f;
+        if (app->board->has_ina_batt) {
+            ina226_reading_t r;
+            if (ina226_read_all(&app->board->ina_batt, &r) == ESP_OK) ibat = r.current_a;
+        }
+        uint16_t vbat_mv = vbat_ok ? (uint16_t)(vbat * 1000.0f) : 0;
+        int16_t  ibat_ma = (int16_t)(ibat * 1000.0f);
+        float t_bq = 0.0f; _read_bq_temp_c(app, &t_bq);
+        uint16_t rpm  = (uint16_t)app->tach_ema_rpm;
+        uint8_t  rpm8 = (uint8_t)(rpm / 50);  // 0–255 → 0–12750 rpm
+        data[0] = CAN_FRAME_TYPE_TELEM;
+        data[1] = (uint8_t)(vbat_mv >> 8);
+        data[2] = (uint8_t)(vbat_mv & 0xFF);
+        data[3] = (uint8_t)((uint16_t)ibat_ma >> 8);
+        data[4] = (uint8_t)((uint16_t)ibat_ma & 0xFF);
+        data[5] = rpm8;
+        data[6] = (int8_t)t_bq;
+        data[7] = 0;
+        break;
+    }
 
-    int      addr    = (int)_get_float(app, "Address", 0);
-    uint16_t vbat_mv = vbat_ok ? (uint16_t)(vbat * 1000.0f) : 0;
-    int16_t  ibat_ma = (int16_t)(ibat * 1000.0f);
-    bool     batt_present = vbat_ok && _battery_present(vbat);
-    uint8_t  flags   = (app->chg_error_latched ? 0x01 : 0)
-                     | (app->chg_full_latched   ? 0x02 : 0)
-                     | (has_bq_st && bq_st.power_good ? 0x04 : 0)
-                     | (batt_present             ? 0x08 : 0);
+    case CAN_FRAME_TYPE_IR: {
+        // [0] frame_type  [1-4] ir_uohm (u32 BE, corrected)
+        // [5] mcu_temp_i8  [6-7] reserved
+        float ir_uohm = 0.0f;
+        if (app->meas_30.valid) {
+            // Host performs Rdson correction — send raw total resistance in µΩ
+            ir_uohm = app->meas_30.r_mohm * 1000.0f;
+        } else if (app->meas_60.valid) {
+            ir_uohm = app->meas_60.r_mohm * 1000.0f;
+        }
+        uint32_t ir_u = (uint32_t)ir_uohm;
+        // MCU internal temp via temp sensor
+        float mcu_temp = 0.0f;
+        mcu_temp = _read_mcu_temp_c();
+        data[0] = CAN_FRAME_TYPE_IR;
+        data[1] = (uint8_t)(ir_u >> 24);
+        data[2] = (uint8_t)(ir_u >> 16);
+        data[3] = (uint8_t)(ir_u >> 8);
+        data[4] = (uint8_t)(ir_u & 0xFF);
+        data[5] = (int8_t)mcu_temp;
+        data[6] = 0;
+        data[7] = 0;
+        break;
+    }
 
-    uint8_t data[8] = {
-        mode_byte,
-        (uint8_t)(vbat_mv >> 8), (uint8_t)(vbat_mv & 0xFF),
-        (uint8_t)((uint16_t)ibat_ma >> 8), (uint8_t)((uint16_t)ibat_ma & 0xFF),
-        flags,
-        has_bq_st ? bq_st.chrg_stat : 0,
-        (uint8_t)app->dsc_pct
-    };
+    case CAN_FRAME_TYPE_IDENTITY: {
+        // [0] frame_type  [1] schema_ver  [2] min_compat
+        // [3] hw_ver_hash (low byte of FNV of FW_HW_VERSION string)
+        // [4] fw_major  [5] fw_minor  [6-7] fw_build (u16 BE)
+        data[0] = CAN_FRAME_TYPE_IDENTITY;
+        data[1] = g_fw_identity.schema_version;
+        data[2] = g_fw_identity.min_compat_schema;
+        // Simple hash of hw_version string
+        uint8_t hw_hash = 0;
+        for (const char *p = g_fw_identity.hw_version; *p; p++)
+            hw_hash = (hw_hash * 31) ^ (uint8_t)*p;
+        data[3] = hw_hash;
+        data[4] = g_fw_identity.major;
+        data[5] = g_fw_identity.minor;
+        data[6] = (uint8_t)((uint16_t)g_fw_identity.build >> 8);
+        data[7] = (uint8_t)(g_fw_identity.build & 0xFF);
+        break;
+    }
 
-    uint32_t tx_id = CAN_ID_STATUS + (addr & 0x3F);
+    default:
+        return; // unknown type — don't transmit garbage
+    }
+
     board_twai_transmit(app->board, tx_id, data, 8, 5);
 }
 
@@ -1223,6 +1330,13 @@ static void _render_can_page(app_t *app, uint32_t now_ms)
     }
 
     // ---- Act on commanded mode ----
+    // Apply BATLOWV if host requested a specific precharge threshold
+    if (app->board->has_bq && s_can_cmd.precharge_thresh != 0) {
+        float thresh = (s_can_cmd.precharge_thresh == 1) ? 2.8f : 3.0f;
+        bq25895_set_batlowv(&app->board->bq, thresh);
+        s_can_cmd.precharge_thresh = 0;  // apply once
+    }
+
     // CHARGE: CE follows host command; CE off when full
     if (s_can_cmd.mode == CAN_MODE_CHARGE) {
         if (!app->chg_full_latched && !app->chg_error_latched) {
@@ -1368,14 +1482,15 @@ static void _render_can_page(app_t *app, uint32_t now_ms)
         }
     }
 
-    // ---- TX: telemetry (rate controlled by host via req_immediate_vbat or 2 Hz) ----
-    bool force_tx = connected && s_can_cmd.req_immediate_vbat;
-    if (force_tx || (int32_t)(now_ms - s_can_tx_next_ms) >= 0) {
+    // Autonomous 2 Hz operational frame
+    if ((int32_t)(now_ms - s_can_tx_next_ms) >= 0) {
         s_can_tx_next_ms = now_ms + 500;
-        uint8_t tx_mode = s_can_cmd.mode;
-        // Signal mode change request if charge just completed
-        // (bit4 of flags is set inside _can_tx_status via chg_full_latched)
-        _can_tx_status(app, tx_mode);
+        _can_tx_frame(app, CAN_FRAME_TYPE_OP);
+    }
+    // On-request frames (host sets req_frame_type bits[2:0] with request flag bit[3])
+    if (connected && s_can_cmd.req_immediate_vbat) {
+        _can_tx_frame(app, s_can_cmd.req_frame_type);
+        s_can_cmd.req_immediate_vbat = false; // clear after servicing
     }
 
     // ---- Display ----
@@ -1470,6 +1585,9 @@ static void _page_enter(app_t *app, app_page_t page, uint32_t now_ms)
         app->chg_error_latched        = false;
         app->chg_full_latched         = false;
         _set_fan(app, true);
+
+        // Send identity frame once on entry so host can verify firmware
+        _can_tx_frame(app, CAN_FRAME_TYPE_IDENTITY);
         break;
 
     default: break;
@@ -1537,6 +1655,7 @@ static void _startup_sequence(app_t *app)
             app->board->has_bq = true;
             bq25895_set_charge_enable(&app->board->bq, false);
             bq25895_set_hiz(&app->board->bq, false);
+            bq25895_adc_set_continuous(&app->board->bq, true);
         }
     } else {
         // BQ already up: show 2.5s progress anyway
@@ -1622,7 +1741,7 @@ void app_init(app_t *app, board_t *board, display_t *disp)
     app->items[n].opts[1] = "Discharge";
     app->items[n].opts[2] = "Measure";
     app->items[n].opts[3] = "Status";
-    app->items[n].opts[4] = "CAN";
+    app->items[n].opts[4] = "CAN sink";
     app->items[n].idx   = 3;  // default: Status
     n++;
 
@@ -1690,7 +1809,8 @@ void app_run(app_t *app)
                 _render_status(app, now);
                 if ((int32_t)(now - s_can_tx_next_ms) >= 0) {
                     s_can_tx_next_ms = now + 1000;
-                    _can_tx_status(app, CAN_MODE_IDLE);
+                    // _can_tx_status(app, CAN_MODE_IDLE);
+                    _can_tx_frame(app, CAN_FRAME_TYPE_OP);
                 }
                 break;
 
@@ -1705,7 +1825,7 @@ void app_run(app_t *app)
                               app->chg_error_latched,app->chg_full_latched,mode); }
                 if ((int32_t)(now - s_can_tx_next_ms) >= 0) {
                     s_can_tx_next_ms = now + 1000;
-                    _can_tx_status(app, CAN_MODE_CHARGE);
+                    _can_tx_frame(app, CAN_FRAME_TYPE_OP);
                 }
                 break;
             }
@@ -1731,7 +1851,7 @@ void app_run(app_t *app)
                               false, false, NULL); }
                 if ((int32_t)(now - s_can_tx_next_ms) >= 0) {
                     s_can_tx_next_ms = now + 1000;
-                    _can_tx_status(app, CAN_MODE_DISCHARGE);
+                    _can_tx_frame(app, CAN_FRAME_TYPE_OP);
                 }
                 break;
 
@@ -1742,7 +1862,7 @@ void app_run(app_t *app)
                 update_leds(0, false, 0, 0, 0, 0, false, false, false, NULL);
                 if ((int32_t)(now - s_can_tx_next_ms) >= 0) {
                     s_can_tx_next_ms = now + 1000;
-                    _can_tx_status(app, CAN_MODE_MEASURE);
+                    _can_tx_frame(app, CAN_FRAME_TYPE_OP);
                 }
                 break;
 

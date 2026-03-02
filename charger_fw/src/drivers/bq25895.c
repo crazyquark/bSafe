@@ -53,8 +53,14 @@ esp_err_t bq25895_init(i2c_master_bus_handle_t bus, uint8_t addr, bq25895_t *out
     esp_err_t ret = i2c_master_bus_add_device(bus, &cfg, &out->dev);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to add BQ25895 at 0x%02X: %s", addr, esp_err_to_name(ret));
+        return ret;
     }
-    return ret;
+    // Enable continuous ADC conversion — required for all ADC registers
+    // (REG10 TS%, REG0F VSYS, REG11 VBUS, REG12 ICHG) to update continuously.
+    // Default power-on state has CONV_RATE=0 (one-shot) and CONV_START=0
+    // meaning all ADC registers hold their reset values until triggered.
+    _update_bits(out, BQ_REG02, BQ_B_CONV_RATE, BQ_B_CONV_RATE);
+    return ESP_OK;
 }
 
 esp_err_t bq25895_set_charge_enable(bq25895_t *dev, bool enabled)
@@ -107,6 +113,13 @@ esp_err_t bq25895_set_charge_voltage_mv(bq25895_t *dev, int mv)
     mv = _clamp(mv, 3840, 4608);
     int code = _clamp((mv - 3840) / 16, 0, 0x3F);
     return _update_bits(dev, BQ_REG06, 0xFC, (uint8_t)(code << 2));
+}
+
+esp_err_t bq25895_set_batlowv(bq25895_t *dev, float threshold_v)
+{
+    // REG06 bit[1]: BATLOWV — 0=2.8V, 1=3.0V
+    uint8_t bit = (threshold_v >= 3.0f) ? 0x02 : 0x00;
+    return _update_bits(dev, BQ_REG06, 0x02, bit);
 }
 
 esp_err_t bq25895_adc_start_oneshot(bq25895_t *dev)

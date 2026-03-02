@@ -4,6 +4,7 @@ idf_component_register(
         "board.c"
         "app.c"
         "nvs_settings.c"
+        "mitm_temp.c"
     INCLUDE_DIRS
         "."
     REQUIRES
