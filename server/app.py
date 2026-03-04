@@ -2,6 +2,12 @@
 app.py — bSafe web server
 Flask + Flask-SocketIO backend, serves the control UI and exposes REST + WS API.
 """
+# Must be the very first executable lines — before any other imports.
+# Without monkey_patch, eventlet cannot intercept stdlib blocking calls
+# (time.sleep, socket, threading) and the hub busy-spins at 100% CPU.
+import eventlet
+eventlet.monkey_patch()
+
 import os
 import sys
 import json
