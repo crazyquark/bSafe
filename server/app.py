@@ -75,16 +75,43 @@ def _push_loop():
         time.sleep(1.0)
 
 # ---------------------------------------------------------------------------
+# Emergency stop button — GPIO24, active low
+# Runs in background thread, fires stop_all() when pressed
+# ---------------------------------------------------------------------------
+def _estop_loop():
+    try:
+        import gpiod
+        chip = gpiod.Chip('gpiochip0')
+        line = chip.get_line(24)
+        line.request(consumer='bsafe-estop',
+                     type=gpiod.LINE_REQ_EV_FALLING_EDGE,
+                     flags=gpiod.LINE_REQ_FLAG_BIAS_PULL_UP)
+        log.info("E-stop button monitoring GPIO24")
+        while True:
+            if line.event_wait(sec=1):
+                ev = line.event_read()
+                if ev.type == gpiod.LineEvent.FALLING_EDGE:
+                    log.warning("E-STOP PRESSED — stopping all programs")
+                    engine.stop_all()
+                    socketio.emit("estop", {"source": "gpio24"})
+    except Exception as e:
+        log.warning(f"E-stop GPIO unavailable: {e}")
+
+# ---------------------------------------------------------------------------
 # App startup
 # ---------------------------------------------------------------------------
 def startup():
     db.init_db()
     engine.start()
+
     if can_host:
         can_host.connect()
+
+    t = threading.Thread(target=_estop_loop, daemon=True, name="estop")
     t = threading.Thread(target=_push_loop, daemon=True, name="push-loop")
     t.start()
-    log.info("bSafe server ready")
+
+    log.info("bSafe listening on port 2026")
 
 # ---------------------------------------------------------------------------
 # Routes — UI

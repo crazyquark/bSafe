@@ -516,6 +516,13 @@ let globalAutoMode = false;
 // =============================================================
 socket.on("connect",    () => fetchAll());
 socket.on("snapshot",   s  => { snapshot = s; renderDevices(); updateStatusBox(); });
+socket.on("estop", () => {
+    globalAutoMode = false;
+    // Flash the STOP button red briefly as visual confirmation
+    const btn = document.querySelector('.btn-red');
+    btn.style.boxShadow = '0 0 20px var(--red)';
+    setTimeout(() => btn.style.boxShadow = '', 1000);
+});
 
 function fetchAll() {
   fetchPrograms();

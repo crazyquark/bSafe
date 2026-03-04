@@ -354,8 +354,9 @@ class Engine:
         with self._lock:
             if addr not in self._states:
                 self._states[addr] = DeviceState(address=addr)
-                db.log_event("device_seen", address=addr,
-                             data={"first_seen": True})
+                db.log_event("device_seen", address=addr, data={"first_seen": True})
+                if self._estop:
+                    self._send_cmd(addr, mode=4)  # immediately WAIT any new device
             s = self._states[addr]
             prev_batt = s.batt_present
             prev_online = s.online
@@ -485,6 +486,7 @@ class Engine:
 
     def start_program(self, addresses: List[int], steps: list,
                       program_id=None, program_title=None, program_body=None):
+        self._estop = False
         started = []
         with self._lock:
             for addr in addresses:
@@ -496,6 +498,7 @@ class Engine:
 
     def start_auto_mode(self, steps: list, program_id=None,
                         program_title=None, program_body=None):
+        self._estop = False
         with self._lock:
             self._auto_mode    = True
             self._auto_program = steps
@@ -508,6 +511,7 @@ class Engine:
 
     def stop_all(self):
         with self._lock:
+            self._estop = True
             self.stop_auto_mode()
             for session in self._sessions.values():
                 if session.status in ("running", "paused"):

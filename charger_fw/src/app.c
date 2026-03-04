@@ -680,6 +680,8 @@ static bool _apply_bq_for_charge(app_t *app)
 
     bq25895_set_hiz(&app->board->bq, false);
     bq25895_set_charge_enable(&app->board->bq, true);
+    bq25895_watchdog_kick(&app->board->bq);  // ADD: prevent watchdog reset of REG04-06
+
     _set_ce(app, true);
     bq25895_set_input_current_limit_ma(&app->board->bq, iinlim_ma);
     bq25895_set_charge_voltage_mv(&app->board->bq, (int)(v_target * 1000.0f));
@@ -855,6 +857,7 @@ static void _render_charge(app_t *app, uint32_t now_ms)
         if (app->board->has_bq) {
             bq25895_set_hiz(&app->board->bq, false);
             bq25895_set_charge_enable(&app->board->bq, true);
+            bq25895_watchdog_kick(&app->board->bq);  // ADD: prevent watchdog reset of REG04-06
         }
         _set_ce(app, true);
     } else {
@@ -919,6 +922,59 @@ static void _render_charge(app_t *app, uint32_t now_ms)
     //         ichg_ok = true;
     //     }
     // }
+
+    // ---- Periodic charge diagnostic log (every 5s) ----
+    // Logs INA226, BQ REG12 ADC, and BQ status independently
+    // so rendering vs measurement bugs can be separated.
+    static uint32_t s_chg_log_ms = 0;
+    if ((int32_t)(now_ms - s_chg_log_ms) >= 0) {
+        s_chg_log_ms = now_ms + 5000;
+
+        // INA226 — raw bus voltage and signed current
+        float ina_vbus = 0.0f, ina_i = 0.0f, ina_vshunt = 0.0f;
+        bool  ina_ok = false;
+        if (app->board->has_ina_batt) {
+            ina226_reading_t ri;
+            if (ina226_read_all(&app->board->ina_batt, &ri) == ESP_OK) {
+                ina_vbus   = ri.bus_v;
+                ina_i      = ri.current_a;
+                ina_vshunt = ri.shunt_v;
+                ina_ok     = true;
+            }
+        }
+
+        // BQ25895 REG12 — ICHG ADC (only valid when ADC continuous mode on)
+        int bq_ichg_ma = -1;
+        if (app->board->has_bq)
+            bq25895_read_charge_current_ma(&app->board->bq, &bq_ichg_ma);
+
+        // BQ25895 VSYS and VBUS via ADC registers
+        float bq_vsys = 0.0f, bq_vbus = 0.0f;
+        if (app->board->has_bq) {
+            bq25895_read_vsys_v(&app->board->bq, &bq_vsys);
+            bq25895_read_vbus_v(&app->board->bq, &bq_vbus);
+        }
+
+        // BQ25895 faults register
+        bq25895_faults_t flt = {0};
+        bool has_flt = app->board->has_bq &&
+                       (bq25895_read_faults(&app->board->bq, &flt) == ESP_OK);
+
+        ESP_LOGI(TAG, "=== CHARGE tick ===");
+        ESP_LOGI(TAG, "  status=%-10s mode=%-4s", status, mode);
+        ESP_LOGI(TAG, "  INA226  vbus=%.3fV  i=%+.4fA  vshunt=%+.4fV  ok=%d",
+                 ina_vbus, ina_i, ina_vshunt, ina_ok);
+        ESP_LOGI(TAG, "  BQ REG12 ichg=%dmA  (displayed: %.3fA / fabsf)",
+                 bq_ichg_ma, fabsf(ina_i));
+        ESP_LOGI(TAG, "  BQ ADC  vsys=%.3fV  vbus=%.3fV", bq_vsys, bq_vbus);
+        ESP_LOGI(TAG, "  BQ stat chrg_stat=%d  pwr_good=%d  raw=0x%02X",
+                 has_st ? st.chrg_stat : -1, has_st ? st.power_good : -1,
+                 has_st ? st.raw : 0xFF);
+        ESP_LOGI(TAG, "  BQ faults raw=0x%02X  ntc=%d  bat=%d  chrg=%d",
+                 has_flt ? flt.raw : 0xFF, flt.ntc_fault, flt.bat_fault, flt.chrg_fault);
+        ESP_LOGI(TAG, "  vbat=%.3fV  t_bq=%.1fC  ichg_ok=%d  ichg_a=%.4fA",
+                 vbat_ok ? vbat : 0.0f, t_bq_ok ? t_bq : -99.0f, ichg_ok, ichg_a);
+    }
 
     char line[20];
     snprintf(line, sizeof(line), "S:%s", status);
@@ -1344,6 +1400,7 @@ static void _render_can_page(app_t *app, uint32_t now_ms)
             if (app->board->has_bq) {
                 bq25895_set_hiz(&app->board->bq, false);
                 bq25895_set_charge_enable(&app->board->bq, true);
+                bq25895_watchdog_kick(&app->board->bq);  // ADD: prevent watchdog reset of REG04-06
             }
         } else {
             _set_ce(app, false);
