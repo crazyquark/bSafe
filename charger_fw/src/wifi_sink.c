@@ -391,8 +391,13 @@ static void connect_task(void *arg)
             strlcpy((char *)wcfg.sta.password,  net.password, sizeof(wcfg.sta.password));
             wcfg.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
 
-            xEventGroupClearBits(s_eg, BIT_WIFI_CONNECTED | BIT_WIFI_FAIL);
+            /* Disconnect first, then wait for the resulting STA_DISCONNECTED
+             * event to fire and set BIT_WIFI_FAIL, THEN clear — so the clear
+             * always wins and the stale event can't poison our wait below. */
             esp_wifi_disconnect();
+            vTaskDelay(pdMS_TO_TICKS(150));
+            xEventGroupClearBits(s_eg,
+                BIT_WIFI_CONNECTED | BIT_WIFI_FAIL | BIT_DISCONNECT);
             esp_wifi_set_config(WIFI_IF_STA, &wcfg);
             esp_wifi_connect();
 
