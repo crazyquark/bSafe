@@ -209,18 +209,19 @@ class DeviceConnection:
             if ftype == FRAME_TYPE_OP:
                 frame = OperationalStatus.parse(address, payload)
                 if host._on_any_status:
-                    host._on_any_status(frame)
+                    host._on_any_status(frame, self._mac)
 
             elif ftype == FRAME_TYPE_TELEM:
                 frame = TelemetryStatus.parse(address, payload)
                 if host._on_telem:
                     host._on_telem(address, frame.rpm, frame.bq_temp_c,
-                                   0, frame.vbat_v, frame.ibat_a)
+                                   0, frame.vbat_v, frame.ibat_a,
+                                   wifi_mac=self._mac)
 
             elif ftype == FRAME_TYPE_IR:
                 frame = IrStatus.parse(address, payload)
                 if host._on_ir:
-                    host._on_ir(address, frame)
+                    host._on_ir(address, frame, wifi_mac=self._mac)
 
             elif ftype == FRAME_TYPE_IDENTITY:
                 frame = IdentityStatus.parse(address, payload)

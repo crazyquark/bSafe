@@ -345,17 +345,11 @@ class Engine:
 
     def resolve_address(self, ui_key: int) -> int:
         """
-        Resolve a UI key (from the snapshot) back to the real device address
-        used for sessions and send_cmd.  For CAN devices ui_key == address.
-        For WiFi devices ui_key is the MAC-derived int; the real address is
-        ws.address (the CAN byte, e.g. 0).
-        Returns the real address, or ui_key if not found (CAN device fallback).
+        Validate a UI key and return it unchanged. For CAN devices ui_key == address.
+        For WiFi devices ui_key is the MAC-derived int and is the canonical session key.
+        Returns ui_key unchanged (sessions and send_cmd both key on ui_key).
         """
-        with self._lock:
-            for ws in self._wifi_states.values():
-                if ws.ui_key == ui_key:
-                    return ws.address
-        return ui_key   # CAN device: ui_key IS the address
+        return ui_key
 
     def start(self):
         self._running = True
@@ -380,12 +374,15 @@ class Engine:
                 return ws
         return None
 
-    def on_status(self, status):
+    def on_status(self, status, wifi_mac: str = ""):
         """Called from bsafe_host.py BSafeHost RX thread with ChargerStatus."""
         addr = status.address
         with self._lock:
-            # WiFi devices live in _wifi_states keyed by MAC; find by frame address.
-            s = self._state_for_address_locked(addr)
+            # WiFi devices: use MAC directly to avoid address-collision ambiguity.
+            if wifi_mac and wifi_mac in self._wifi_states:
+                s = self._wifi_states[wifi_mac]
+            else:
+                s = self._state_for_address_locked(addr)
             if s is None:
                 if addr not in self._states:
                     self._states[addr] = DeviceState(address=addr)
@@ -408,7 +405,9 @@ class Engine:
             s.last_rx      = time.time()
             s.online       = True
 
-            session = self._sessions.get(addr)
+            # Use ui_key as session key for WiFi devices (avoids CAN address collision)
+            session_key = s.ui_key if s.ui_key else addr
+            session = self._sessions.get(session_key)
 
             # Battery insertion/removal (only if not paused)
             if not (session and session.status == "paused"):
@@ -422,7 +421,7 @@ class Engine:
                     # Auto mode: start program if battery above DETECT threshold
                     if self._auto_mode and self._auto_program and not session \
                             and not self._estop:
-                        self._start_session_locked(addr, self._auto_program)
+                        self._start_session_locked(session_key, self._auto_program)
 
                 elif not is_present and prev_batt:
                     db.log_event("battery_remove", address=addr,
@@ -438,12 +437,16 @@ class Engine:
                              data={"vbat": s.vbat_v})
                 # If e-stop is latched, immediately command WAIT to any new device
                 if self._estop:
-                    self._send_cmd(addr, mode=4)  # WAIT
+                    self._send_cmd(session_key, mode=4)  # WAIT
 
     def on_telemetry(self, address: int, rpm: int, bq_temp_c: int,
-                     ir_uohm: int, vbat_v: float, ibat_a: float):
+                     ir_uohm: int, vbat_v: float, ibat_a: float,
+                     wifi_mac: str = ""):
         with self._lock:
-            s = self._state_for_address_locked(address) or self._states.get(address)
+            if wifi_mac and wifi_mac in self._wifi_states:
+                s = self._wifi_states[wifi_mac]
+            else:
+                s = self._state_for_address_locked(address) or self._states.get(address)
             if s is None:
                 return
             s.rpm           = rpm
@@ -477,7 +480,7 @@ class Engine:
             now = time.time()
             with self._lock:
                 all_states = list(self._states.items()) + [
-                    (ws.address, ws) for ws in self._wifi_states.values()]
+                    (ws.ui_key or ws.address, ws) for ws in self._wifi_states.values()]
                 for addr, s in all_states:
                     # Offline detection
                     if s.online and (now - s.last_rx) > OFFLINE_TIMEOUT:
@@ -595,13 +598,20 @@ class Engine:
         # Route to WiFi host if device is WiFi-connected, else fall through to CAN.
         # WiFi host is registered lazily by network_blueprint.init_network().
         if self._wifi_host is not None:
-            # Resolve MAC for this address: WiFi states are indexed by MAC
+            # Resolve MAC: prefer ui_key match (unique per device) over CAN address
+            # (which can collide when multiple WiFi devices share the same NVS address).
             mac = None
             with self._lock:
                 for m, ws in self._wifi_states.items():
-                    if ws.address == address:
+                    if ws.ui_key and ws.ui_key == address:
                         mac = m
                         break
+                if mac is None:
+                    # fallback: CAN address match (single WiFi device or CAN path)
+                    for m, ws in self._wifi_states.items():
+                        if ws.address == address:
+                            mac = m
+                            break
             if mac and self._wifi_host.is_connected(mac):
                 try:
                     self._wifi_host.send_cmd(
@@ -651,8 +661,7 @@ class Engine:
         # Synthetic int key: last 2 MAC bytes → 0x0000–0xFFFF, offset to
         # avoid collision with real CAN addresses (0–63).
         try:
-            mac_parts = [int(x, 16) for x in mac_str.split(":")]
-            ui_key = 0x10000 | (mac_parts[-2] << 8) | mac_parts[-1]
+            ui_key = int(mac_str.replace(":", ""), 16)  # full 48-bit MAC integer
         except Exception:
             ui_key = address  # fallback
 

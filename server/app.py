@@ -271,7 +271,7 @@ def api_request_frame(address):
 @app.route("/api/device/<int:address>/alias", methods=["POST"])
 def api_set_alias(address):
     data  = request.json or {}
-    alias = data.get("alias", "").strip() or None
+    alias = (data.get("alias") or "").strip() or None
     snap  = engine.get_ui_snapshot()
     dev   = snap["devices"].get(address)
     if not dev:
