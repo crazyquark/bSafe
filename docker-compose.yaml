@@ -1,0 +1,10 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - "2026:2026"
+    volumes:
+      - ./server/data:/app/data
+    environment:
+      - SECRET_KEY=bsafe-dev-key-change-me
+    restart: unless-stopped
