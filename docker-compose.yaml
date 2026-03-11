@@ -1,8 +1,9 @@
 services:
   server:
     build: ./server
-    ports:
-      - "2026:2026"
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
     volumes:
       - ./server/data:/app/data
     environment:
