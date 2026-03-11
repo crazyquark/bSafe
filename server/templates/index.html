@@ -767,8 +767,8 @@ function renderDevices() {
   const addrs   = Object.keys(devices).map(Number).sort((a,b) => a-b);
 
   const placeholder = document.getElementById("no-devices-placeholder");
-  // Only show cards for devices whose MAC is known
-  const visibleAddrs = addrs.filter(a => devices[a].mac);
+  // Show all devices; MAC is used for title/alias but not required to display
+  const visibleAddrs = addrs.filter(a => devices[a] !== undefined);
 
   if (!visibleAddrs.length) {
     if (placeholder) placeholder.style.display = "";

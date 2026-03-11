@@ -57,20 +57,31 @@ def init_network(engine, socketio=None, force_softap: bool = False):
     _wifi_host = BSafeWiFiHost(bind_ip="0.0.0.0", port=port)
 
     # Register WiFi callbacks into engine (same as CAN host)
-    def _on_status(status):
-        engine.on_status(status)
+    def _on_status(status, wifi_mac=""):
+        engine.on_status(status, wifi_mac=wifi_mac)
 
-    def _on_telem(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a):
-        engine.on_telemetry(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a)
+    def _on_telem(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a, wifi_mac=""):
+        engine.on_telemetry(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a,
+                            wifi_mac=wifi_mac)
 
-    def _on_ir(address, frame):
-        # Pass corrected ir_uohm to engine using current vbat from engine state
+    def _on_ir(address, frame, wifi_mac=""):
         snap = engine.get_ui_snapshot()
-        vbat_v = snap["devices"].get(address, {}).get("vbat_v", 0.0)
+        vbat_v = 0.0
+        if wifi_mac:
+            mac_int = int(wifi_mac.replace(":", ""), 16)
+            dev = snap["devices"].get(mac_int)
+            if dev:
+                vbat_v = dev.get("vbat_v", 0.0)
+        if not vbat_v:
+            for dev in snap["devices"].values():
+                if dev.get("address") == address:
+                    vbat_v = dev.get("vbat_v", 0.0)
+                    break
         from bsafe_frames import corrected_ir_uohm
         ir_corrected = int(corrected_ir_uohm(float(frame.ir_uohm_raw), vbat_v))
         engine.on_telemetry(address, rpm=0, bq_temp_c=0,
-                            ir_uohm=ir_corrected, vbat_v=vbat_v, ibat_a=0.0)
+                            ir_uohm=ir_corrected, vbat_v=vbat_v, ibat_a=0.0,
+                            wifi_mac=wifi_mac)
 
     def _on_identity(address, schema_ver, hw_hash):
         engine.on_identity(address, schema_ver, hw_hash)
@@ -209,8 +220,10 @@ def _mark_devices_pending(ssid: str, pw: str):
     if _wifi_host is None:
         return
     import json
+    connected = set(_wifi_host.connected_macs())
     for state in db.all_device_wifi_states():
         addr = state["address"]
+        mac  = state.get("mac") or ""
         known_raw = state.get("known_networks") or "[]"
         try:
             known = set(json.loads(known_raw))
@@ -221,9 +234,8 @@ def _mark_devices_pending(ssid: str, pw: str):
             if not any(p["ssid"] == ssid for p in pending):
                 pending.append({"ssid": ssid, "password": pw})
                 db.set_pending_push(addr, pending)
-            # If device is currently connected, push now
-            if addr in _wifi_host.connected_addresses():
-                _wifi_host.push_networks_to_device(addr)
+            if mac and mac in connected:
+                _wifi_host.push_networks_to_device(mac)
 
 
 # ---------------------------------------------------------------------------
@@ -232,9 +244,11 @@ def _mark_devices_pending(ssid: str, pw: str):
 @net_bp.route("/api/devices", methods=["GET"])
 def api_device_states():
     states = db.all_device_wifi_states()
-    wifi_addrs = set(_wifi_host.connected_addresses()) if _wifi_host else set()
+    connected_macs = set(_wifi_host.connected_macs()) if _wifi_host else set()
+    connected_addrs = set(_wifi_host.connected_addresses()) if _wifi_host else set()
     for s in states:
-        s["currently_connected"] = s["address"] in wifi_addrs
+        mac = s.get("mac", "")
+        s["currently_connected"] = (mac and mac in connected_macs) or s["address"] in connected_addrs
     return jsonify(states)
 
 
@@ -242,9 +256,11 @@ def api_device_states():
 def api_device_sync(addr):
     if _wifi_host is None:
         return jsonify({"error": "WiFi host not running"}), 503
-    if addr not in _wifi_host.connected_addresses():
+    state = db.get_device_wifi_state(addr)
+    mac = (state or {}).get("mac") or ""
+    if not mac or not _wifi_host.is_connected(mac):
         return jsonify({"error": f"Device {addr} not connected over WiFi"}), 404
-    _wifi_host.push_networks_to_device(addr)
+    _wifi_host.push_networks_to_device(mac)
     return jsonify({"ok": True})
 
 

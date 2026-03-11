@@ -522,6 +522,61 @@ def all_device_wifi_states() -> list:
             "SELECT * FROM device_wifi_state ORDER BY address").fetchall()
         return [dict(r) for r in rows]
 
+
+
+# ---------------------------------------------------------------------------
+# MAC-keyed device wifi state (WiFi devices, primary key = MAC)
+# ---------------------------------------------------------------------------
+
+def _mac_to_synthetic_addr(mac: str) -> int:
+    """
+    Derive a stable synthetic int address from MAC for use as DB primary key.
+    Uses last 3 bytes of MAC → 24-bit int, offset into a high range (0x800000+)
+    to avoid collision with real CAN addresses (0-63).
+    """
+    parts = mac.split(":")
+    if len(parts) == 6:
+        return 0x800000 | (int(parts[3], 16) << 16) | (int(parts[4], 16) << 8) | int(parts[5], 16)
+    # fallback: hash
+    return 0x800000 | (hash(mac) & 0x7FFFFF)
+
+
+def get_device_wifi_state_by_mac(mac: str) -> dict:
+    """Fetch device_wifi_state row by MAC address."""
+    with get_conn() as conn:
+        r = conn.execute(
+            "SELECT * FROM device_wifi_state WHERE mac=?", (mac,)).fetchone()
+        return dict(r) if r else {}
+
+
+def upsert_device_wifi_state_by_mac(mac: str, **kwargs):
+    """
+    Insert or update device_wifi_state keyed by MAC.
+    Uses a synthetic address derived from the MAC so the INTEGER PRIMARY KEY
+    constraint is satisfied.  The mac column is set on insert and never changed.
+    Extra kwarg frame_address (int) is stored in the address column on first insert.
+    """
+    synth_addr = _mac_to_synthetic_addr(mac)
+    # Allow caller to override the stored address (e.g. from frame header)
+    frame_addr = kwargs.pop("frame_address", synth_addr)
+    with get_conn() as conn:
+        # Try to find existing row by MAC first (in case address differs)
+        row = conn.execute(
+            "SELECT address FROM device_wifi_state WHERE mac=?", (mac,)).fetchone()
+        if row:
+            real_addr = row["address"]
+        else:
+            real_addr = frame_addr
+            conn.execute(
+                "INSERT OR IGNORE INTO device_wifi_state (address, mac) VALUES (?,?)",
+                (real_addr, mac))
+        if kwargs:
+            cols = ", ".join(f"{k}=?" for k in kwargs)
+            vals = list(kwargs.values()) + [real_addr]
+            conn.execute(
+                f"UPDATE device_wifi_state SET {cols}, updated_at=unixepoch('now','subsec') WHERE address=?",
+                vals)
+
 def get_device_alias(mac: str) -> str | None:
     """Return the user-set alias for a device MAC, or None."""
     with get_conn() as conn:

@@ -40,7 +40,7 @@
 #define WIFI_SINK_MDNS_RETRIES         3    /* attempts per tcp_connect() call */
 
 /* Fallback IP when mDNS resolution fails — softAP gateway */
-#define WIFI_SINK_PI_FALLBACK_IP       "192.168.1.130"
+#define WIFI_SINK_PI_FALLBACK_IP       "10.0.12.229" // "192.168.1.130"
 
 /* Default network seeded on first boot */
 /* Default networks are defined in config.h as WIFI_DEFAULT_NETWORKS.

@@ -452,6 +452,14 @@ static void connect_task(void *arg)
             vTaskDelay(pdMS_TO_TICKS(WIFI_SINK_RECONNECT_DELAY_MS));
             break;   /* restart outer loop from beginning to re-sort */
         }
+        /* ── All networks exhausted without a successful connection ──────
+         * Power-cycle the WiFi radio to clear any stuck association state,
+         * then wait before the next round of attempts.               */
+        ESP_LOGW(TAG, "All networks failed — radio power cycle");
+        esp_wifi_stop();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        esp_wifi_start();
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
