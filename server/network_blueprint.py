@@ -57,25 +57,31 @@ def init_network(engine, socketio=None, force_softap: bool = False):
     _wifi_host = BSafeWiFiHost(bind_ip="0.0.0.0", port=port)
 
     # Register WiFi callbacks into engine (same as CAN host)
-    def _on_status(status):
-        engine.on_status(status)
+    def _on_status(status, wifi_mac=""):
+        engine.on_status(status, wifi_mac=wifi_mac)
 
-    def _on_telem(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a):
-        engine.on_telemetry(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a)
+    def _on_telem(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a, wifi_mac=""):
+        engine.on_telemetry(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a,
+                            wifi_mac=wifi_mac)
 
-    def _on_ir(address, frame):
-        # vbat_v lookup: snapshot keys are MAC strings for WiFi devices.
-        # Search by address field since we only have frame address here.
+    def _on_ir(address, frame, wifi_mac=""):
         snap = engine.get_ui_snapshot()
         vbat_v = 0.0
-        for dev in snap["devices"].values():
-            if dev.get("address") == address:
+        if wifi_mac:
+            mac_int = int(wifi_mac.replace(":", ""), 16)
+            dev = snap["devices"].get(mac_int)
+            if dev:
                 vbat_v = dev.get("vbat_v", 0.0)
-                break
+        if not vbat_v:
+            for dev in snap["devices"].values():
+                if dev.get("address") == address:
+                    vbat_v = dev.get("vbat_v", 0.0)
+                    break
         from bsafe_frames import corrected_ir_uohm
         ir_corrected = int(corrected_ir_uohm(float(frame.ir_uohm_raw), vbat_v))
         engine.on_telemetry(address, rpm=0, bq_temp_c=0,
-                            ir_uohm=ir_corrected, vbat_v=vbat_v, ibat_a=0.0)
+                            ir_uohm=ir_corrected, vbat_v=vbat_v, ibat_a=0.0,
+                            wifi_mac=wifi_mac)
 
     def _on_identity(address, schema_ver, hw_hash):
         engine.on_identity(address, schema_ver, hw_hash)
