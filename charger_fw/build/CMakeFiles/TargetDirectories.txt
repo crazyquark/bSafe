@@ -841,6 +841,13 @@ C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/drivers/CMakeFiles
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/drivers/CMakeFiles/install.dir
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/drivers/CMakeFiles/install/local.dir
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/drivers/CMakeFiles/install/strip.dir
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__mdns/CMakeFiles/__idf_espressif__mdns.dir
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__mdns/CMakeFiles/edit_cache.dir
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__mdns/CMakeFiles/rebuild_cache.dir
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__mdns/CMakeFiles/list_install_components.dir
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__mdns/CMakeFiles/install.dir
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__mdns/CMakeFiles/install/local.dir
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__mdns/CMakeFiles/install/strip.dir
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__led_strip/CMakeFiles/__idf_espressif__led_strip.dir
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__led_strip/CMakeFiles/edit_cache.dir
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__led_strip/CMakeFiles/rebuild_cache.dir

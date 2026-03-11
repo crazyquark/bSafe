@@ -2,12 +2,6 @@
 app.py — bSafe web server
 Flask + Flask-SocketIO backend, serves the control UI and exposes REST + WS API.
 """
-# Must be the very first executable lines — before any other imports.
-# Without monkey_patch, eventlet cannot intercept stdlib blocking calls
-# (time.sleep, socket, threading) and the hub busy-spins at 100% CPU.
-import eventlet
-eventlet.monkey_patch()
-
 import os
 import sys
 import json
@@ -20,6 +14,7 @@ from flask_socketio import SocketIO, emit
 import db
 from parser import parse_program, program_is_valid, commands_to_steps
 from engine import Engine
+from network_blueprint import net_bp, init_network
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -38,7 +33,8 @@ can_host = None
 try:
     from bsafe_host import BSafeHost, Mode as CanMode
     can_host = BSafeHost(channel=os.environ.get("CAN_CHANNEL", "can0"),
-                         bitrate=int(os.environ.get("CAN_BITRATE", "500000")))
+                         bitrate=int(os.environ.get("CAN_BITRATE", "500000")),
+                         bustype=os.environ.get("CAN_BUSTYPE", "socketcan"))
     log.info("CAN host initialised")
 except Exception as e:
     log.warning(f"CAN host unavailable: {e} — running in UI-only mode")
@@ -48,7 +44,8 @@ except Exception as e:
 # ---------------------------------------------------------------------------
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "bsafe-dev-key-change-me")
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+app.register_blueprint(net_bp)
 
 # ---------------------------------------------------------------------------
 # Engine
@@ -81,43 +78,20 @@ def _push_loop():
         time.sleep(1.0)
 
 # ---------------------------------------------------------------------------
-# Emergency stop button — GPIO24, active low
-# Runs in background thread, fires stop_all() when pressed
-# ---------------------------------------------------------------------------
-def _estop_loop():
-    try:
-        import gpiod
-        chip = gpiod.Chip('gpiochip0')
-        line = chip.get_line(24)
-        line.request(consumer='bsafe-estop',
-                     type=gpiod.LINE_REQ_EV_FALLING_EDGE,
-                     flags=gpiod.LINE_REQ_FLAG_BIAS_PULL_UP)
-        log.info("E-stop button monitoring GPIO24")
-        while True:
-            if line.event_wait(sec=1):
-                ev = line.event_read()
-                if ev.type == gpiod.LineEvent.FALLING_EDGE:
-                    log.warning("E-STOP PRESSED — stopping all programs")
-                    engine.stop_all()
-                    socketio.emit("estop", {"source": "gpio24"})
-    except Exception as e:
-        log.warning(f"E-stop GPIO unavailable: {e}")
-
-# ---------------------------------------------------------------------------
 # App startup
 # ---------------------------------------------------------------------------
 def startup():
     db.init_db()
     engine.start()
-
     if can_host:
-        can_host.connect()
-
-    t = threading.Thread(target=_estop_loop, daemon=True, name="estop")
+        try:
+            can_host.connect()
+        except Exception as e:
+            log.warning(f"CAN connect failed: {e} — running without CAN")
+    init_network(engine, socketio=socketio)
     t = threading.Thread(target=_push_loop, daemon=True, name="push-loop")
     t.start()
-
-    log.info("bSafe listening on port 2026")
+    log.info("bSafe server ready")
 
 # ---------------------------------------------------------------------------
 # Routes — UI
@@ -288,6 +262,20 @@ def api_request_frame(address):
     engine._request_frame(address, ftype)
     return jsonify({"ok": True})
 
+@app.route("/api/device/<int:address>/alias", methods=["POST"])
+def api_set_alias(address):
+    data  = request.json or {}
+    alias = data.get("alias", "").strip() or None
+    snap  = engine.get_ui_snapshot()
+    dev   = snap["devices"].get(address)
+    if not dev:
+        return jsonify({"error": "device not found"}), 404
+    mac = dev.get("mac")
+    if not mac:
+        return jsonify({"error": "device has no MAC yet"}), 409
+    engine.set_device_alias(mac, alias)
+    return jsonify({"ok": True, "mac": mac, "alias": alias})
+
 # ---------------------------------------------------------------------------
 # Routes — Events log
 # ---------------------------------------------------------------------------
@@ -321,5 +309,14 @@ def on_request_snapshot():
 # Entry point
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
+    import atexit
+    def _shutdown():
+        engine.stop()
+        if can_host:
+            try:
+                can_host.disconnect()
+            except Exception:
+                pass
+    atexit.register(_shutdown)
     startup()
     socketio.run(app, host="0.0.0.0", port=2026, debug=False)

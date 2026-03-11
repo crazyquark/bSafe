@@ -5,6 +5,7 @@ idf_component_register(
         "app.c"
         "nvs_settings.c"
         "mitm_temp.c"
+        "wifi_sink.c"
     INCLUDE_DIRS
         "."
     REQUIRES
@@ -18,6 +19,10 @@ idf_component_register(
         "freertos"
         "log"
         "nvs_flash"
+        "esp_wifi"
+        "esp_event"
+        "lwip"
+        "mdns"
     PRIV_REQUIRES
         "esp_timer"
         "esp_adc"

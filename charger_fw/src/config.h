@@ -23,8 +23,8 @@
 // Shunt / circuit resistances
 // -----------------------------------------------------------------------------
 #define SHUNT_RESISTANCE_OHMS   0.008f      // 8 mΩ
-#define CIRCUIT_R_CHARGE_MOHM   30
-#define CIRCUIT_R_DISCHG_MOHM   30
+#define CIRCUIT_R_CHARGE_MOHM   25
+#define CIRCUIT_R_DISCHG_MOHM   25
 #define DISCHARGE_RESISTOR_OHMS 0.83f
 
 // -----------------------------------------------------------------------------
@@ -92,3 +92,21 @@
 // Max cells
 // -----------------------------------------------------------------------------
 #define MAX_CELLS_PARALLEL  16
+
+// -----------------------------------------------------------------------------
+// WiFi networks — seeded into NVS on first boot (empty NVS only).
+// Add as many entries as needed. Priority: higher = preferred.
+// The device will try networks in priority order, last-successful first.
+// Credentials stored here are the compile-time defaults only; the Pi can
+// push additional networks at runtime via WIFI_CFG_PUSH frames.
+// -----------------------------------------------------------------------------
+#define WIFI_DEFAULT_NETWORKS  { \
+    /* { "profi",        "profielements!", 10 }, */ \
+    { "RaspAP",  "ChangeMe",    10  },  \
+    { "DIGI-5Cub",  "4e6ApSAczb",    8  },  \
+    { "DIGI-Cub",  "4e6ApSAczb",    6  },  \
+    { "MKL",  "balcescu36",    4  },  \
+}
+
+// Number of entries in WIFI_DEFAULT_NETWORKS — update when adding rows
+#define WIFI_DEFAULT_NETWORK_COUNT  4

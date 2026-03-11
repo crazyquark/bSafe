@@ -8,6 +8,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "esp_log.h"
+#include "esp_system.h"  /* esp_reset_reason() */
 #include <string.h>
 #include <stdbool.h>
 
@@ -168,6 +169,7 @@ static void _write_all(nvs_handle_t h, const settings_t *s)
     _write_float(h, NVS_KEY_DSC_TO,     s->dsc_to);
     _write_u16(h,   NVS_KEY_CAPACITY,   s->capacity_mah);
     _write_u8(h,    NVS_KEY_MAX_TEMP,   s->max_temp);
+    _write_u8(h,    NVS_KEY_SINK_MODE,  s->sink_mode);
 }
 
 // -----------------------------------------------------------------------------
@@ -209,11 +211,12 @@ static void _read_all(nvs_handle_t h, settings_t *out)
         if (ret != ESP_OK) out->logo_valid = false;
     }
 
-    out->address      = _read_u8(h,    NVS_KEY_ADDRESS,  def.address);
-    out->chg_to       = _read_float(h, NVS_KEY_CHG_TO,   def.chg_to);
-    out->dsc_to       = _read_float(h, NVS_KEY_DSC_TO,   def.dsc_to);
-    out->capacity_mah = _read_u16(h,   NVS_KEY_CAPACITY, def.capacity_mah);
-    out->max_temp     = _read_u8(h,    NVS_KEY_MAX_TEMP, def.max_temp);
+    out->address      = _read_u8(h,    NVS_KEY_ADDRESS,   def.address);
+    out->chg_to       = _read_float(h, NVS_KEY_CHG_TO,    def.chg_to);
+    out->dsc_to       = _read_float(h, NVS_KEY_DSC_TO,    def.dsc_to);
+    out->capacity_mah = _read_u16(h,   NVS_KEY_CAPACITY,  def.capacity_mah);
+    out->max_temp     = _read_u8(h,    NVS_KEY_MAX_TEMP,  def.max_temp);
+    out->sink_mode    = _read_u8(h,    NVS_KEY_SINK_MODE, def.sink_mode);
 }
 
 // -----------------------------------------------------------------------------
@@ -473,7 +476,15 @@ void nvs_settings_apply(const settings_t *s, app_t *app)
         if (strcmp(it->key, "DscTo")    == 0) { it->val = s->dsc_to;               continue; }
         if (strcmp(it->key, "Capacity") == 0) { it->val = (float)s->capacity_mah;  continue; }
         if (strcmp(it->key, "MaxTemp")  == 0) { it->val = (float)s->max_temp;      continue; }
+        if (strcmp(it->key, "Sink")     == 0) { it->idx = (s->sink_mode != 0) ? 1 : 0; continue; }
     }
+    // Keep app struct in sync so code outside the menu loop can read it cheaply
+    app->sink_mode = (sink_mode_t)(s->sink_mode != 0 ? 1 : 0);
+
+    // NOTE: WiFi network seeding (default SSID/password) is done inside
+    // wifi_sink_preinit(), which must be called from main.c before app_init().
+    // Do NOT call wifi_sink_add_network() here — the wifi mutex is not
+    // guaranteed to exist at this point in the boot sequence.
 }
 
 // -----------------------------------------------------------------------------
@@ -487,5 +498,80 @@ const char *nvs_key_for_menu_item(const char *menu_key)
     if (strcmp(menu_key, "DscTo")    == 0) return NVS_KEY_DSC_TO;
     if (strcmp(menu_key, "Capacity") == 0) return NVS_KEY_CAPACITY;
     if (strcmp(menu_key, "MaxTemp")  == 0) return NVS_KEY_MAX_TEMP;
+    if (strcmp(menu_key, "Sink")     == 0) return NVS_KEY_SINK_MODE;
     return NULL;  // "Exec" and any future non-persistent items
+}
+
+// -----------------------------------------------------------------------------
+// nvs_resume_save — mark that device was in sink mode (PAGE_CAN or PAGE_WIFI).
+// Called from _page_entry() in app.c.
+// -----------------------------------------------------------------------------
+void nvs_resume_save(uint8_t page)
+{
+    if (g_skip_nvs) return;
+
+    nvs_handle_t h;
+    if (_open(&h, NVS_READWRITE) != ESP_OK) return;
+
+    _write_u8(h, NVS_KEY_RESUME_PAGE,   page);
+    _write_u8(h, NVS_KEY_RESUME_REASON, (uint8_t)esp_reset_reason());
+    _write_u8(h, NVS_KEY_RESUME_VALID,  NVS_RESUME_MAGIC);
+    nvs_commit(h);
+    nvs_close(h);
+
+    ESP_LOGI(TAG, "Resume state saved: page=%u reason=%u",
+             page, (unsigned)esp_reset_reason());
+}
+
+// -----------------------------------------------------------------------------
+// nvs_resume_clear — clear sink resume state on clean page exit.
+// Called from _page_exit() in app.c.
+// -----------------------------------------------------------------------------
+void nvs_resume_clear(void)
+{
+    if (g_skip_nvs) return;
+
+    nvs_handle_t h;
+    if (_open(&h, NVS_READWRITE) != ESP_OK) return;
+
+    _write_u8(h, NVS_KEY_RESUME_VALID, 0x00);
+    nvs_commit(h);
+    nvs_close(h);
+
+    ESP_LOGD(TAG, "Resume state cleared (clean exit)");
+}
+
+// -----------------------------------------------------------------------------
+// nvs_resume_check — read and consume the resume state.
+// Returns the saved page (PAGE_CAN or PAGE_WIFI) on a valid resume, else 0.
+// Clears the valid flag immediately so a crash before page entry doesn't
+// cause an infinite resume loop.
+// -----------------------------------------------------------------------------
+uint8_t nvs_resume_check(void)
+{
+    nvs_handle_t h;
+    if (_open(&h, NVS_READONLY) != ESP_OK) return 0;
+
+    uint8_t valid  = _read_u8(h, NVS_KEY_RESUME_VALID,  0x00);
+    uint8_t page   = _read_u8(h, NVS_KEY_RESUME_PAGE,   0x00);
+    uint8_t reason = _read_u8(h, NVS_KEY_RESUME_REASON, 0x00);
+    nvs_close(h);
+
+    if (valid != NVS_RESUME_MAGIC) return 0;
+    if (page == 0) return 0;   /* PAGE_NONE — should not happen but guard anyway */
+
+    /* Consume the flag immediately — if we crash again before reaching the
+     * page, we should not resume a third time.  The flag will be re-written
+     * by _page_entry() once we actually enter the page.                     */
+    if (!g_skip_nvs) {
+        nvs_handle_t hw;
+        if (_open(&hw, NVS_READWRITE) == ESP_OK) {
+            _write_u8(hw, NVS_KEY_RESUME_VALID, 0x00);
+            nvs_commit(hw);
+            nvs_close(hw);
+        }
+    }
+
+    ESP_LOGI(TAG, "Sink resume: page=%u last_reset_reason=%u", page, reason);
+    return page;
 }

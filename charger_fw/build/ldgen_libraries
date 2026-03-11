@@ -140,6 +140,8 @@ C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/console/libconsole
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/esp_local_ctrl/libesp_local_ctrl.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/protocomm/libprotocomm.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/esp_https_server/libesp_https_server.a
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__mdns/libespressif__mdns.a
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/esp_eth/libesp_eth.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espcoredump/libespcoredump.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/wear_levelling/libwear_levelling.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/fatfs/libfatfs.a
@@ -153,6 +155,7 @@ C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/wifi_provisioning/
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/json/libjson.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/drivers/libdrivers.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/esp_lcd/libesp_lcd.a
+C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__mdns/libespressif__mdns.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/espressif__led_strip/libespressif__led_strip.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/src/libsrc.a
 C:/Users/Paul/Documents/GitHub/bSafe/charger_fw/build/esp-idf/drivers/libdrivers.a

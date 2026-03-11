@@ -12,7 +12,7 @@
 #include "version.h"
 #include "nvs_settings.h"
 #include "config.h"
-
+#include "wifi_sink.h"
 #include "mitm_temp.h"
 
 static const char *TAG = "main";
@@ -127,6 +127,9 @@ void app_main(void)
 
     // --- Board init ---
     board_init_all(&board, 5.1f);
+    // NOTE: BQ25895 is absent when running on 3V3-only (no XT-30 / USB-PD power).
+    // board_init_all() logs a warning and sets board.has_bq = false in that case.
+    // All 3V3 peripherals (display, expander, INA226, LED, TWAI) work normally.
 
     // --- Display init early — needed for conflict prompt ---
     display_init(&disp, board.lcd_panel);
@@ -158,15 +161,36 @@ void app_main(void)
     // --- App init (builds menu with compiled-in defaults) ---
     app_init(&app, &board, &disp);
 
+    // --- WiFi Phase 1: create mutexes + load NVS networks.
+    //     Safe to call here — does not touch the radio.
+    //     Must come after nvs_flash_init() (inside nvs_settings_load) and
+    //     before nvs_settings_apply() which previously called wifi_sink_add_network(). ---
+    wifi_sink_preinit();
+
     // --- Overlay NVS settings onto menu defaults ---
     if (!g_skip_nvs) {
         nvs_settings_apply(&settings, &app);
     }
 
-    // MAN IN THE MIDDLE (MITM) USED FOR TMEP DEBUGGING
-    // mitm_temp_run(&board, &disp);   // never returns, replaces app_run()
-    // mitm_temp_run(&board, &disp, s_adc);  // replaces app_run()
-    
+    // --- WiFi Phase 2 is deferred: wifi_sink_connect() is called inside
+    //     app_wifi_sink_start() when the user navigates to PAGE_WIFI.
+    //     No radio activity at boot regardless of sink_mode setting. ---
+
+    // --- Sink auto-resume ---
+    // If the device was in CAN or WiFi sink mode when it last reset (panic,
+    // watchdog, power glitch), nvs_resume_check() returns the saved page and
+    // we navigate there directly.  The valid flag is consumed immediately so
+    // a second crash before page entry does not cause an infinite loop.
+    // On a clean user-initiated exit, _page_exit() calls nvs_resume_clear()
+    // so the flag is always 0 on a normal reboot.
+    if (!g_skip_nvs) {
+        uint8_t resume_page = nvs_resume_check();
+        if (resume_page != 0) {
+            ESP_LOGI("main", "Auto-resuming sink page %u", resume_page);
+            app.page = (app_page_t)resume_page;
+        }
+    }
+
     // --- Run (never returns) ---
     app_run(&app);
 }

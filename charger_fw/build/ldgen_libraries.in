@@ -140,6 +140,8 @@ $<TARGET_FILE:__idf_console>
 $<TARGET_FILE:idf::esp_local_ctrl>
 $<TARGET_FILE:__idf_protocomm>
 $<TARGET_FILE:__idf_esp_https_server>
+$<TARGET_FILE:__idf_espressif__mdns>
+$<TARGET_FILE:__idf_esp_eth>
 $<TARGET_FILE:idf::espcoredump>
 $<TARGET_FILE:idf::wear_levelling>
 $<TARGET_FILE:idf::fatfs>
@@ -153,6 +155,7 @@ $<TARGET_FILE:idf::wifi_provisioning>
 $<TARGET_FILE:__idf_json>
 $<TARGET_FILE:idf::drivers>
 $<TARGET_FILE:__idf_esp_lcd>
+$<TARGET_FILE:idf::espressif__mdns>
 $<TARGET_FILE:idf::espressif__led_strip>
 $<TARGET_FILE:idf::src>
 $<TARGET_FILE:__idf_drivers>

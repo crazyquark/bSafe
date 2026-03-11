@@ -46,6 +46,8 @@ class DeviceState:
     # Type 0x03 — identity
     schema_ver:   int   = 0
     hw_ver_hash:  int   = 0
+    # WiFi identity
+    mac:          str   = ""    # WiFi STA MAC, set by on_wifi_identity
     # Host-side tracking
     last_rx:      float = 0.0
     last_telemetry_rx: float = 0.0
@@ -322,7 +324,8 @@ class DeviceSession:
 # ---------------------------------------------------------------------------
 class Engine:
     def __init__(self, can_host):
-        self.can_host = can_host
+        self.can_host  = can_host
+        self._wifi_host = None   # set later by set_wifi_host() from network_blueprint
         self._sessions: Dict[int, DeviceSession] = {}   # address → session
         self._states: Dict[int, DeviceState] = {}       # address → DeviceState
         self._auto_program: Optional[dict] = None        # steps for auto mode
@@ -332,6 +335,11 @@ class Engine:
         self._lock = threading.Lock()
         self._poll_thread = None
         self._running = False
+
+    def set_wifi_host(self, wifi_host):
+        """Wire in the BSafeWiFiHost so _send_cmd can route WiFi-connected devices."""
+        self._wifi_host = wifi_host
+        log.info("WiFi host registered with engine")
 
     def start(self):
         self._running = True
@@ -553,28 +561,63 @@ class Engine:
     # -------------------------------------------------------------------------
     def _send_cmd(self, address, mode, dsc_duty_pct=30,
                   dsc_pulse_ms=5000, settle_minutes=0,
-                  req_immediate_vbat=False, req_frame_type=0):
+                  request_flag=False, req_frame_type=0):
+        # Route to WiFi host if device is WiFi-connected, else fall through to CAN.
+        # WiFi host is registered lazily by network_blueprint.init_network().
+        if self._wifi_host is not None and self._wifi_host.is_connected(address):
+            try:
+                self._wifi_host.send_cmd(
+                    address        = address,
+                    mode           = mode,
+                    dsc_duty_pct   = dsc_duty_pct,
+                    dsc_pulse_ms   = dsc_pulse_ms,
+                    settle_minutes = settle_minutes,
+                    request_flag   = request_flag,
+                    req_frame_type = req_frame_type,
+                )
+            except Exception as e:
+                log.warning(f"WiFi send error [{address}]: {e}")
+            return
+
+        if self.can_host is None:
+            return
         from bsafe_host import Mode as CanMode
         try:
             self.can_host.send_cmd(
-                address       = address,
-                mode          = CanMode(mode),
-                dsc_duty_pct  = dsc_duty_pct,
-                dsc_pulse_ms  = dsc_pulse_ms,
-                settle_minutes= settle_minutes,
-                req_immediate_vbat = req_immediate_vbat,
-                req_frame_type= req_frame_type,
+                address        = address,
+                mode           = CanMode(mode),
+                dsc_duty_pct   = dsc_duty_pct,
+                dsc_pulse_ms   = dsc_pulse_ms,
+                settle_minutes = settle_minutes,
+                request_flag   = request_flag,
+                req_frame_type = req_frame_type,
             )
         except Exception as e:
             log.warning(f"CAN send error [{address}]: {e}")
 
     def _request_frame(self, address: int, frame_type: int):
         self._send_cmd(address, mode=4,  # WAIT — don't change mode
-                       req_frame_type=frame_type)
+                       request_flag=True, req_frame_type=frame_type)
 
     # -------------------------------------------------------------------------
     # UI state snapshot
     # -------------------------------------------------------------------------
+    def on_wifi_identity(self, address: int, mac_str: str):
+        """Called when a device sends its MAC via FRAME_WIFI_IDENTITY (0x04)."""
+        import db
+        with self._lock:
+            if address not in self._states:
+                self._states[address] = DeviceState(address=address)
+            self._states[address].mac = mac_str
+        db.upsert_device_wifi_state(address, mac=mac_str)
+        import logging
+        logging.getLogger("engine").info(f"[{address}] WiFi MAC: {mac_str}")
+
+    def set_device_alias(self, mac: str, alias):
+        """Persist a user alias for a device identified by MAC."""
+        import db
+        db.set_device_alias(mac, alias)
+
     def get_ui_snapshot(self) -> dict:
         with self._lock:
             devices = {}
@@ -610,6 +653,8 @@ class Engine:
                     "schema_ver":    s.schema_ver,
                     "hw_ver_hash":   s.hw_ver_hash,
                     "last_rx":       s.last_rx,
+                    "mac":           s.mac,
+                    "alias":         __import__("db").get_device_alias(s.mac) if s.mac else None,
                     "session":       sess_state,
                 }
             return {

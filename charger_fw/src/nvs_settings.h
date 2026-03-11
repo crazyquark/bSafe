@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include "version.h"
 #include "esp_err.h"
+#include "wifi_sink.h"
 #include "app.h"
 
 // -----------------------------------------------------------------------------
@@ -53,6 +54,16 @@
 #define NVS_KEY_DSC_TO          "dsc_to"
 #define NVS_KEY_CAPACITY        "capacity"
 #define NVS_KEY_MAX_TEMP        "max_temp"
+#define NVS_KEY_SINK_MODE       "sink_mode"  // uint8: 0=CAN 1=WiFi
+
+// Sink auto-resume keys — written on PAGE_CAN/WIFI entry, cleared on clean exit.
+// On boot: if resume_valid == NVS_RESUME_MAGIC, navigate directly to boot_page.
+// A power outage does NOT clear NVS, so the device resumes sink mode after
+// power restoration — the Pi re-sends the current command within one TX cycle.
+#define NVS_KEY_RESUME_VALID    "resume_valid"  // uint8: NVS_RESUME_MAGIC or 0
+#define NVS_KEY_RESUME_PAGE     "resume_page"   // uint8: PAGE_CAN or PAGE_WIFI
+#define NVS_KEY_RESUME_REASON   "resume_reason" // uint8: esp_reset_reason() at save time
+#define NVS_RESUME_MAGIC        0xA5            // sentinel — any other value = no resume
 
 // -----------------------------------------------------------------------------
 // settings_t — the full persistent settings block
@@ -85,6 +96,7 @@ typedef struct {
     float    dsc_to;                // discharge cutoff voltage V
     uint16_t capacity_mah;          // battery capacity mAh
     uint8_t  max_temp;              // max battery temperature C
+    uint8_t  sink_mode;             // 0=CAN 1=WiFi
 
 } settings_t;
 
@@ -135,6 +147,7 @@ extern bool g_skip_nvs;
     .dsc_to         = 3.70f,                    \
     .capacity_mah   = 10000,                    \
     .max_temp       = 50,                       \
+    .sink_mode      = 0,                        \
 }
 
 // -----------------------------------------------------------------------------
@@ -186,3 +199,27 @@ void nvs_settings_apply(const settings_t *s, app_t *app);
  *         Returns NULL if key has no NVS backing (e.g. "Exec").
  */
 const char *nvs_key_for_menu_item(const char *menu_key);
+
+/**
+ * @brief  Save sink resume state to NVS.
+ *         Call from _page_entry() when entering PAGE_CAN or PAGE_WIFI.
+ *         No-op if g_skip_nvs is true.
+ * @param page  PAGE_CAN or PAGE_WIFI (stored as uint8)
+ */
+void nvs_resume_save(uint8_t page);
+
+/**
+ * @brief  Clear sink resume state in NVS (clean exit — do not resume).
+ *         Call from _page_exit() when leaving PAGE_CAN or PAGE_WIFI.
+ *         No-op if g_skip_nvs is true.
+ */
+void nvs_resume_clear(void);
+
+/**
+ * @brief  Check NVS for a pending sink resume.
+ *         Returns the saved page (PAGE_CAN or PAGE_WIFI) if resume_valid
+ *         matches NVS_RESUME_MAGIC, otherwise returns PAGE_NONE (0).
+ *         Clears the valid flag after reading so a subsequent crash that
+ *         happens before the page is entered does not loop-resume.
+ */
+uint8_t nvs_resume_check(void);

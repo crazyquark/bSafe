@@ -1,3 +1,5 @@
 /charger_fw/build
-/charger_fw/build
-/charger_fw/build
+/charger_fw/managed_components
+/charger_fw/build/
+/server/__pycache__
+/server/.claude

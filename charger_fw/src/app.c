@@ -30,7 +30,7 @@ static const char *TAG = "app";
 // ---------------------------------------------------------------------------
 static inline uint32_t ms_now(void)
 {
-    return (uint32_t)(esp_timer_get_time() / 1000ULL);
+    return (uint32_t)(esp_timer_get_time() >> 10);
 }
 
 static inline uint32_t us_now(void)
@@ -550,8 +550,14 @@ static void _confirm_edit(app_t *app)
         else if (strcmp(action, "Discharge") == 0) app->page = PAGE_DISCHARGE;
         else if (strcmp(action, "Measure")   == 0) app->page = PAGE_MEASURE;
         else if (strcmp(action, "Status")    == 0) app->page = PAGE_STATUS;
-        else if (strcmp(action, "CAN sink")       == 0) app->page = PAGE_CAN;
+        else if (strcmp(action, "CAN sink")  == 0) app->page = PAGE_CAN;
+        else if (strcmp(action, "WiFi sink") == 0) app->page = PAGE_WIFI;
         app->mode = MODE_PAGE;
+    } else if (strcmp(it->key, "Sink") == 0) {
+        // ITEM_LIST — persist idx directly; also update app->sink_mode
+        app->sink_mode = (sink_mode_t)it->idx;
+        nvs_settings_save_int(NVS_KEY_SINK_MODE, (int32_t)it->idx);
+        app->mode = MODE_MAIN;
     } else {
         // Persist changed value to NVS (no-op if g_skip_nvs)
         const char *nvs_key = nvs_key_for_menu_item(it->key);
@@ -1220,6 +1226,96 @@ static can_cmd_t  s_can_cmd        = { CAN_MODE_WAIT, 30, 5000, 0, false, 0, 0};
 static uint32_t   s_can_last_rx_ms = 0;
 static uint32_t   s_can_tx_next_ms = 0;
 
+// ---------------------------------------------------------------------------
+// WiFi sink integration
+// ---------------------------------------------------------------------------
+#include "wifi_sink.h"
+#include "esp_wifi.h"
+
+// Mirrors s_can_cmd / s_can_last_rx_ms — filled from the WiFi RX task via cb.
+static can_cmd_t s_wifi_cmd             = { CAN_MODE_WAIT, 30, 5000, 0, false, 0, 0};
+static uint32_t  s_wifi_last_rx_ms      = 0;
+static uint32_t  s_wifi_tx_next_ms      = 0;
+static uint32_t  s_wifi_last_activity_ms = 0;  /* max(last_rx, last successful tx) */
+
+// Title rotation state (scenario B: connected)
+#define WIFI_TITLE_ROTATE_MS  3000
+static uint32_t  s_wifi_title_rotate_ms = 0;   /* when to advance slot */
+static uint8_t   s_wifi_title_slot      = 0;   /* 0=PI@IP, 1=SSID, 2=MAC */
+
+
+// Called from wifi_sink RX task — convert wifi_cmd_t to can_cmd_t so
+// _render_wifi_page can be a thin wrapper over the same logic.
+static void _on_wifi_cmd(const wifi_cmd_t *wcmd, void *ctx)
+{
+    (void)ctx;
+    s_wifi_cmd.mode                 = wcmd->mode & 0x07;
+    s_wifi_cmd.dsc_duty_pct         = wcmd->dsc_duty_pct;
+    s_wifi_cmd.dsc_pulse_ms         = wcmd->dsc_pulse_ms;
+    s_wifi_cmd.settle_remaining_min = (uint16_t)(wcmd->settle_minutes & 0xFFFF);
+    s_wifi_cmd.req_immediate_vbat   = (wcmd->flags & 0x08) != 0;
+    s_wifi_cmd.req_frame_type       = wcmd->flags & 0x07;
+    s_wifi_cmd.precharge_thresh     = 0;
+    s_wifi_last_rx_ms               = ms_now();
+    s_wifi_last_activity_ms         = s_wifi_last_rx_ms;
+}
+
+static void _wifi_send_identity(void);   /* forward — defined after render fns */
+
+// Called from wifi_sink task on state transitions — update connection string.
+static void _on_wifi_state(wifi_sink_state_t state, const char *ssid, void *ctx)
+{
+    app_t *app = (app_t *)ctx;
+    switch (state) {
+    case WIFI_STATE_IDLE:            snprintf(app->wifi_conn_str, 16, "IDLE");      break;
+    case WIFI_STATE_WIFI_CONNECTING: snprintf(app->wifi_conn_str, 16, "ASSOC...");  break;
+    case WIFI_STATE_TCP_CONNECTING:  snprintf(app->wifi_conn_str, 16, "TCP...");    break;
+    case WIFI_STATE_CONNECTED:
+        snprintf(app->wifi_conn_str, 16, "ONLINE");
+        /* Reset title rotation to slot 0 (PI@IP) on every fresh connect */
+        s_wifi_title_slot      = 0;
+        s_wifi_title_rotate_ms = ms_now() + WIFI_TITLE_ROTATE_MS;
+        /* Send WiFi identity (including MAC) on every TCP connect so the
+         * server can register/re-register this device by MAC.            */
+        _wifi_send_identity();
+        break;
+    case WIFI_STATE_RECONNECTING:
+        snprintf(app->wifi_conn_str, 16, "RECONN...");
+        /* Stale activity timestamp from previous session would make the bar
+         * show a huge elapsed time on reconnect — clear it on drop.        */
+        s_wifi_last_activity_ms = 0;
+        break;
+    default:                         snprintf(app->wifi_conn_str, 16, "?");         break;
+    }
+    (void)ssid;
+}
+
+// ---------------------------------------------------------------------------
+// app_wifi_sink_start — trigger Phase 2 WiFi connect with app callbacks wired in.
+// Called from _page_entry() when user navigates to PAGE_WIFI.
+// Idempotent: wifi_sink_connect() is a no-op if WiFi is already started.
+// ---------------------------------------------------------------------------
+void app_wifi_sink_start(app_t *app)
+{
+    snprintf(app->wifi_conn_str, 16, "INIT...");
+    wifi_sink_config_t cfg = {
+        .address  = (uint8_t)_get_float(app, "Address", 0),
+        .tcp_port = 7000,
+        .on_cmd   = _on_wifi_cmd,
+        .on_state = _on_wifi_state,
+        .ctx      = app,
+    };
+    /* Pi hostname without .local suffix — wifi_sink resolves via mDNS,
+     * falls back to 192.168.4.1 (softAP gateway) if query fails.      */
+    strncpy(cfg.pi_hostname, "bsafe-pi", sizeof(cfg.pi_hostname) - 1);
+
+    esp_err_t ret = wifi_sink_connect(&cfg);
+    if (ret != ESP_OK) {
+        ESP_LOGW(TAG, "wifi_sink_connect: %s", esp_err_to_name(ret));
+        snprintf(app->wifi_conn_str, 16, "INIT ERR");
+    }
+}
+
 static void _can_parse_cmd(const twai_message_t *rx, can_cmd_t *out)
 {
     out->mode                   = (rx->data_length_code >= 1) ? (rx->data[0] & 0x07) : CAN_MODE_WAIT;
@@ -1242,6 +1338,7 @@ static void _can_parse_cmd(const twai_message_t *rx, can_cmd_t *out)
 #define CAN_FRAME_TYPE_TELEM    0x01  // extended telemetry (on request)
 #define CAN_FRAME_TYPE_IR       0x02  // IR + MCU temp (on request)
 #define CAN_FRAME_TYPE_IDENTITY 0x03  // identity (on request + CAN page entry)
+#define CAN_FRAME_TYPE_WIFI_IDENTITY 0x04  // WiFi-only: identity + 6-byte MAC appended
 
 static void _can_tx_frame(app_t *app, uint8_t frame_type)
 {
@@ -1593,7 +1690,385 @@ static void _render_can_page(app_t *app, uint32_t now_ms)
 }
 
 // ---------------------------------------------------------------------------
-// Page enter / exit hooks
+// Render: WiFi remote-control page
+// Structure is identical to _render_can_page; RX comes from s_wifi_cmd
+// (populated by _on_wifi_cmd callback), TX via wifi_sink_send().
+// ---------------------------------------------------------------------------
+static void _render_wifi_page(app_t *app, uint32_t now_ms)
+{
+    // No queue to drain — s_wifi_cmd is updated by the wifi_sink RX task cb.
+
+    // ---- Map commanded mode → LED backlight ----
+    switch (s_wifi_cmd.mode) {
+    case CAN_MODE_CHARGE:    s_led_mode = LED_MODE_CHARGE;    break;
+    case CAN_MODE_DISCHARGE: s_led_mode = LED_MODE_DISCHARGE; break;
+    case CAN_MODE_MEASURE:   s_led_mode = LED_MODE_MEASURE;   break;
+    case CAN_MODE_SETTLE:    s_led_mode = LED_MODE_WAIT;      break;
+    default:                 s_led_mode = LED_MODE_WAIT;      break;
+    }
+
+    // ---- Act on commanded mode ----
+    if (app->board->has_bq && s_wifi_cmd.precharge_thresh != 0) {
+        float thresh = (s_wifi_cmd.precharge_thresh == 1) ? 2.8f : 3.0f;
+        bq25895_set_batlowv(&app->board->bq, thresh);
+        s_wifi_cmd.precharge_thresh = 0;
+    }
+
+    if (s_wifi_cmd.mode == CAN_MODE_CHARGE) {
+        if (!app->chg_full_latched && !app->chg_error_latched) {
+            _set_ce(app, true);
+            if (app->board->has_bq) {
+                bq25895_set_hiz(&app->board->bq, false);
+                bq25895_set_charge_enable(&app->board->bq, true);
+                bq25895_watchdog_kick(&app->board->bq);
+            }
+        } else {
+            _set_ce(app, false);
+        }
+    } else if (s_wifi_cmd.mode == CAN_MODE_DISCHARGE) {
+        _set_ce(app, false);
+        float vbat_c = 0.0f; bool vb_c = _read_vbat_v(app, &vbat_c);
+        float v_empty = _get_float(app, "DscTo", 3.7f);
+        if (!vb_c || vbat_c > v_empty) {
+            app->dsc_pct = s_wifi_cmd.dsc_duty_pct;
+            _ledc_set_pct(app->dsc_pct);
+        } else {
+            _ledc_set_pct(0);
+        }
+    } else {
+        _ledc_set_pct(0);
+        _set_ce(app, false);
+    }
+
+    // ---- Gather sensor data ----
+    float vbat = 0.0f; bool vbat_ok = _read_vbat_v(app, &vbat);
+    float ibat = 0.0f;
+    if (app->board->has_ina_batt) {
+        ina226_reading_t r;
+        if (ina226_read_all(&app->board->ina_batt, &r) == ESP_OK) ibat = r.current_a;
+    }
+    bool batt_present = vbat_ok && _battery_present(vbat);
+
+    if (!batt_present) {
+        app->meas_30 = (meas_result_t){0};
+        app->meas_60 = (meas_result_t){0};
+    }
+
+    if (s_wifi_cmd.mode == CAN_MODE_CHARGE) {
+        bq25895_status_t st = {0};
+        bool has_st = _bq_try_read_status(app, &st);
+        float vmin = _get_float(app, "ChgFrom", 2.5f);
+        if (has_st && vbat_ok && vbat < (vmin - 1e-6f) && !app->chg_error_latched) {
+            _set_ce(app, false); app->chg_error_latched = true;
+        }
+        if (has_st && st.chrg_stat == 3 && !app->chg_full_latched) {
+            _set_ce(app, false); app->chg_full_latched = true;
+        }
+    }
+
+    float t_bq = 0.0f; bool t_bq_ok = _read_bq_temp_c(app, &t_bq);
+
+    uint32_t age_ms = (s_wifi_last_rx_ms == 0) ? 0xFFFFFFFFUL : (now_ms - s_wifi_last_rx_ms);
+    wifi_sink_state_t wstate = wifi_sink_get_state();
+    bool tcp_up   = (wstate == WIFI_STATE_CONNECTED);
+    bool connected = tcp_up && s_wifi_last_rx_ms != 0 && age_ms <= 5000;
+    char s_detail[16];
+    if (!connected) {
+        snprintf(s_detail, sizeof(s_detail), "%s",
+                 (s_wifi_last_rx_ms == 0) ? "WAITING" : "OFFLINE");
+    } else {
+        switch (s_wifi_cmd.mode) {
+        case CAN_MODE_IDLE:
+            snprintf(s_detail, sizeof(s_detail), "IDLE"); break;
+        case CAN_MODE_CHARGE: {
+            if (app->chg_error_latched)      snprintf(s_detail, sizeof(s_detail), "LOW VOLT");
+            else if (app->chg_full_latched)  snprintf(s_detail, sizeof(s_detail), "CHARGED");
+            else if (!batt_present)          snprintf(s_detail, sizeof(s_detail), "NO BATT");
+            else {
+                bq25895_status_t st = {0};
+                bool has_st = _bq_try_read_status(app, &st);
+                if (!has_st || !st.power_good) {
+                    snprintf(s_detail, sizeof(s_detail), "UNPOWERED");
+                } else {
+                    float vtar = _get_float(app, "ChgTo", 4.2f);
+                    switch (st.chrg_stat) {
+                    case 1: snprintf(s_detail, sizeof(s_detail), "PRE-COND"); break;
+                    case 2: snprintf(s_detail, sizeof(s_detail), "%s",
+                                vbat >= (vtar - 0.03f) ? "CONST.VOLT." : "CONST.CURR."); break;
+                    case 3: snprintf(s_detail, sizeof(s_detail), "CHARGED"); break;
+                    default: snprintf(s_detail, sizeof(s_detail), "IDLE"); break;
+                    }
+                }
+            }
+            break;
+        }
+        case CAN_MODE_DISCHARGE: {
+            int duty = s_wifi_cmd.dsc_duty_pct;
+            if (duty >= 100) snprintf(s_detail, sizeof(s_detail), "DISC.FULL");
+            else             snprintf(s_detail, sizeof(s_detail), "DISC.@%d%%", duty);
+            break;
+        }
+        case CAN_MODE_MEASURE:
+            snprintf(s_detail, sizeof(s_detail), "MEASURING"); break;
+        case CAN_MODE_SETTLE: {
+            uint16_t rem = s_wifi_cmd.settle_remaining_min;
+            if (rem > 0) snprintf(s_detail, sizeof(s_detail), "SETTLING %um", rem);
+            else         snprintf(s_detail, sizeof(s_detail), "SETTLING");
+            break;
+        }
+        case CAN_MODE_WAIT:
+        default:
+            snprintf(s_detail, sizeof(s_detail), "WAITING"); break;
+        }
+    }
+
+    // ---- Autonomous 2 Hz TX (only when TCP connected) ----
+    if (tcp_up && (int32_t)(now_ms - s_wifi_tx_next_ms) >= 0) {
+        s_wifi_tx_next_ms = now_ms + 500;
+        // Build OP frame payload (same layout as CAN_FRAME_TYPE_OP)
+        float vbat2 = 0.0f; _read_vbat_v(app, &vbat2);
+        float ibat2 = 0.0f;
+        if (app->board->has_ina_batt) {
+            ina226_reading_t r2;
+            if (ina226_read_all(&app->board->ina_batt, &r2) == ESP_OK) ibat2 = r2.current_a;
+        }
+        bq25895_status_t bq2 = {0}; bool has_bq2 = _bq_try_read_status(app, &bq2);
+        bool bp2 = (vbat2 > VBAT_PRESENT_V);
+        uint16_t vbat_mv = (uint16_t)(vbat2 * 1000.0f);
+        int16_t  ibat_ma = (int16_t)(ibat2 * 1000.0f);
+        uint8_t  flags   = (app->chg_error_latched          ? 0x01 : 0)
+                         | (app->chg_full_latched            ? 0x02 : 0)
+                         | (has_bq2 && bq2.power_good        ? 0x04 : 0)
+                         | (bp2                              ? 0x08 : 0)
+                         | (app->chg_full_latched            ? 0x10 : 0);
+        uint8_t payload[8] = {
+            CAN_FRAME_TYPE_OP,
+            (uint8_t)(vbat_mv >> 8), (uint8_t)(vbat_mv & 0xFF),
+            (uint8_t)((uint16_t)ibat_ma >> 8), (uint8_t)((uint16_t)ibat_ma & 0xFF),
+            flags,
+            has_bq2 ? bq2.chrg_stat : 0,
+            (uint8_t)app->dsc_pct
+        };
+        if (wifi_sink_send(CAN_FRAME_TYPE_OP, payload, 8) == ESP_OK)
+            s_wifi_last_activity_ms = now_ms;
+    }
+    // On-request frame
+    if (connected && s_wifi_cmd.req_immediate_vbat) {
+        uint8_t ft = s_wifi_cmd.req_frame_type;
+        uint8_t req_payload[8] = {ft, 0,0,0,0,0,0,0};
+        switch (ft) {
+        case CAN_FRAME_TYPE_TELEM: {
+            // [0]=type [1-2]=vbat_mv [3-4]=ibat_ma [5]=rpm8 [6]=bq_temp [7]=0
+            float vbat_r = 0.0f; bool vbat_rok = _read_vbat_v(app, &vbat_r);
+            float ibat_r = 0.0f;
+            if (app->board->has_ina_batt) {
+                ina226_reading_t rr;
+                if (ina226_read_all(&app->board->ina_batt, &rr) == ESP_OK) ibat_r = rr.current_a;
+            }
+            uint16_t vm = vbat_rok ? (uint16_t)(vbat_r * 1000.0f) : 0;
+            int16_t  im = (int16_t)(ibat_r * 1000.0f);
+            float t_r = 0.0f; _read_bq_temp_c(app, &t_r);
+            uint8_t rpm8 = (uint8_t)((uint16_t)app->tach_ema_rpm / 50);
+            req_payload[1] = (uint8_t)(vm >> 8);
+            req_payload[2] = (uint8_t)(vm & 0xFF);
+            req_payload[3] = (uint8_t)((uint16_t)im >> 8);
+            req_payload[4] = (uint8_t)((uint16_t)im & 0xFF);
+            req_payload[5] = rpm8;
+            req_payload[6] = (int8_t)t_r;
+            break;
+        }
+        case CAN_FRAME_TYPE_IR: {
+            // [0]=type [1-4]=ir_uohm BE [5]=mcu_temp [6-7]=0
+            float ir_r = 0.0f;
+            if (app->meas_30.valid)      ir_r = app->meas_30.r_mohm * 1000.0f;
+            else if (app->meas_60.valid) ir_r = app->meas_60.r_mohm * 1000.0f;
+            uint32_t ir_u = (uint32_t)ir_r;
+            float mcu_t = _read_mcu_temp_c();
+            req_payload[1] = (uint8_t)(ir_u >> 24);
+            req_payload[2] = (uint8_t)(ir_u >> 16);
+            req_payload[3] = (uint8_t)(ir_u >> 8);
+            req_payload[4] = (uint8_t)(ir_u & 0xFF);
+            req_payload[5] = (int8_t)mcu_t;
+            break;
+        }
+        case CAN_FRAME_TYPE_IDENTITY:
+            // Identity with MAC is handled separately by _wifi_send_identity()
+            _wifi_send_identity();
+            s_wifi_cmd.req_immediate_vbat = false;
+            goto req_done;
+        default:
+            s_wifi_cmd.req_immediate_vbat = false;
+            goto req_done;
+        }
+        if (wifi_sink_send(ft, req_payload, 8) == ESP_OK)
+            s_wifi_last_activity_ms = now_ms;
+        s_wifi_cmd.req_immediate_vbat = false;
+        req_done:;
+    }
+
+    // ---- Display ----
+    display_t *d = app->disp;
+    display_clear(d, 0);
+    char line[24];   /* 24: fits "PI@xxx.xxx.xxx.xxx\0" (19) and "BT:xxC  DT:xxxC\0" */
+
+    // ---- LINE 1 (y=0, inverted title) ----------------------------------------
+    // Scenario A (not connected): STARTING WIFI / CONNECTING X/N / LOOKING FOR PI
+    // Scenario B (connected):     rotate PI@IP → SSID → MAC every 3s
+    // --------------------------------------------------------------------------
+    if (wstate == WIFI_STATE_CONNECTED) {
+        // Advance rotation slot every WIFI_TITLE_ROTATE_MS ms
+        if ((int32_t)(now_ms - s_wifi_title_rotate_ms) >= 0) {
+            s_wifi_title_slot      = (s_wifi_title_slot + 1) % 3;
+            s_wifi_title_rotate_ms = now_ms + WIFI_TITLE_ROTATE_MS;
+        }
+        switch (s_wifi_title_slot) {
+        case 0: {   /* PI@192.168.1.x or @192.168.1.x for long IPs */
+            const char *pip = wifi_sink_pi_ip();
+            if (pip && pip[0]) {
+                /* dotted-decimal max = "255.255.255.255" = 15 chars */
+                char ip_buf[16];
+                snprintf(ip_buf, sizeof(ip_buf), "%.15s", pip);
+                if (strlen(ip_buf) <= 13)
+                    snprintf(line, sizeof(line), "PI@%s", ip_buf);
+                else
+                    snprintf(line, sizeof(line), "@%s", ip_buf);
+            } else {
+                snprintf(line, sizeof(line), "PI@?");
+            }
+            break;
+        }
+        case 1: {   /* Connected SSID, no prefix */
+            const char *ssid = wifi_sink_current_ssid();
+            snprintf(line, sizeof(line), "%.16s", ssid && ssid[0] ? ssid : "?");
+            break;
+        }
+        case 2: {   /* MAC address, no prefix */
+            uint8_t mac[6] = {0};
+            esp_wifi_get_mac(WIFI_IF_STA, mac);
+            snprintf(line, sizeof(line), "%02X%02X:%02X%02X:%02X%02X",
+                     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+            break;
+        }
+        default:
+            snprintf(line, sizeof(line), "ONLINE");
+            break;
+        }
+    } else {
+        // Scenario A: connection ladder
+        switch (wstate) {
+        case WIFI_STATE_IDLE:
+            snprintf(line, sizeof(line), "STARTING WIFI");
+            break;
+        case WIFI_STATE_WIFI_CONNECTING: {
+            uint8_t ti = 0, tt = 0;
+            wifi_sink_try_progress(&ti, &tt);
+            if (tt > 0)
+                snprintf(line, sizeof(line), "CONNECTING %d/%d", ti, tt);
+            else
+                snprintf(line, sizeof(line), "CONNECTING...");
+            break;
+        }
+        case WIFI_STATE_TCP_CONNECTING:
+            snprintf(line, sizeof(line), "LOOKING FOR PI");
+            break;
+        case WIFI_STATE_RECONNECTING:
+            snprintf(line, sizeof(line), "RECONNECTING...");
+            break;
+        default:
+            snprintf(line, sizeof(line), "STARTING WIFI");
+            break;
+        }
+    }
+    _draw_inverted_title(d, line);
+
+    // ---- LINE 2 (y=20): Battery V / A ----------------------------------------
+    if (vbat_ok) {
+        char sign_i = (ibat >= 0.0f) ? '+' : '-';
+        snprintf(line, sizeof(line), "B:%.2fV/%c%.2fA", vbat, sign_i, fabsf(ibat));
+    } else {
+        snprintf(line, sizeof(line), "B:--V/--A");
+    }
+    display_draw_str(d, 0, 20, line, false);
+
+    // ---- LINE 3 (y=32): BT (battery NTC via BQ TS) / DT (heatsink NTC GPIO1) --
+    float t_ext = 0.0f;
+    bool  t_ext_ok = _read_ext_temp_c(&t_ext);
+    {
+        /* temps: "-99C" = 4 chars max; bt_s/dt_s sized for that + NUL */
+        char bt_s[6], dt_s[6];
+        if (t_bq_ok)  snprintf(bt_s, sizeof(bt_s), "%dC", (int)t_bq);
+        else          snprintf(bt_s, sizeof(bt_s), "--");
+        if (t_ext_ok) snprintf(dt_s, sizeof(dt_s), "%dC", (int)t_ext);
+        else          snprintf(dt_s, sizeof(dt_s), "--");
+        /* "BT:xxC DT:xxC" = 14 chars max, fits in line[24] */
+        snprintf(line, sizeof(line), "BT:%s DT:%s", bt_s, dt_s);
+    }
+    display_draw_str(d, 0, 32, line, false);
+
+    // ---- LINE 4 (y=44): Status / mode ----------------------------------------
+    snprintf(line, sizeof(line), "S:%s", s_detail);
+    display_draw_str(d, 0, 44, line, false);
+
+    // ---- LINE 5 (y=60): Activity bar — time since last RX or successful TX --
+    // 4px tall bar, x=0..127.  x=0 is a permanent 8px-tall anchor column.
+    // Rate: 2 px/s  →  full scale = 63.5 s  (127 drawable columns at x=1..127).
+    // s_wifi_last_activity_ms is updated on every acknowledged TX and every RX.
+    // Bar is cleared and rebuilt each frame from the current elapsed time.
+    {
+        // Permanent anchor at x=0, full bar height (8px) so it's always visible
+        display_fill_rect(d, 0, 56, 1, 8, true);
+
+        if (s_wifi_last_activity_ms != 0) {
+            uint32_t elapsed_ms = now_ms - s_wifi_last_activity_ms;
+            // 2 px/s: pixels = elapsed_ms * 2 / 1000, capped at 127 drawable cols
+            uint32_t px = elapsed_ms >> 9;
+            if (px > 127u) px = 127u;
+            if (px > 0)
+                display_fill_rect(d, 1, 60, (int)px, 4, true);
+        }
+    }
+
+    display_flush(d);
+
+    update_leds(vbat, vbat_ok, 0, 0, 0, 0, false, false, false, NULL);
+}
+
+// ---------------------------------------------------------------------------
+// _wifi_send_identity — send WIFI_IDENTITY frame (0x04) with the standard
+// 8-byte identity payload followed by the 6-byte WiFi MAC address.
+//
+// Layout (14 bytes total):
+//   [0]    frame_type = 0x04
+//   [1]    schema_version
+//   [2]    min_compat_schema
+//   [3]    hw_ver_hash  (FNV of hw_version string, low byte)
+//   [4]    fw_major
+//   [5]    fw_minor
+//   [6-7]  fw_build (u16 BE)
+//   [8-13] WiFi STA MAC (6 bytes, big-endian)
+// ---------------------------------------------------------------------------
+static void _wifi_send_identity(void)
+{
+    uint8_t payload[14];
+    payload[0] = CAN_FRAME_TYPE_WIFI_IDENTITY;
+    payload[1] = g_fw_identity.schema_version;
+    payload[2] = g_fw_identity.min_compat_schema;
+    uint8_t hw_hash = 0;
+    for (const char *p = g_fw_identity.hw_version; *p; p++)
+        hw_hash = (hw_hash * 31) ^ (uint8_t)*p;
+    payload[3] = hw_hash;
+    payload[4] = g_fw_identity.major;
+    payload[5] = g_fw_identity.minor;
+    payload[6] = (uint8_t)((uint16_t)g_fw_identity.build >> 8);
+    payload[7] = (uint8_t)(g_fw_identity.build & 0xFF);
+
+    uint8_t mac[6] = {0};
+    esp_wifi_get_mac(WIFI_IF_STA, mac);
+    memcpy(&payload[8], mac, 6);
+
+    wifi_sink_send(CAN_FRAME_TYPE_WIFI_IDENTITY, payload, sizeof(payload));
+}
+
 // ---------------------------------------------------------------------------
 static void _page_enter(app_t *app, app_page_t page, uint32_t now_ms)
 {
@@ -1647,6 +2122,28 @@ static void _page_enter(app_t *app, app_page_t page, uint32_t now_ms)
         _can_tx_frame(app, CAN_FRAME_TYPE_IDENTITY);
         break;
 
+    case PAGE_WIFI:
+        s_led_mode                     = LED_MODE_WAIT;
+        s_wifi_cmd.mode                = CAN_MODE_WAIT;
+        s_wifi_cmd.dsc_duty_pct        = 30;
+        s_wifi_cmd.dsc_pulse_ms        = 5000;
+        s_wifi_cmd.settle_remaining_min = 0;
+        s_wifi_cmd.req_immediate_vbat  = false;
+        s_wifi_last_rx_ms              = 0;
+        s_wifi_last_activity_ms        = 0;
+        s_wifi_tx_next_ms              = now_ms;
+        s_wifi_title_slot              = 0;
+        s_wifi_title_rotate_ms         = now_ms + WIFI_TITLE_ROTATE_MS;
+        app->chg_error_latched         = false;
+        app->chg_full_latched          = false;
+        _set_fan(app, true);
+        // Start WiFi driver here — deferred until user actually enters this page.
+        // wifi_sink_preinit() already ran at boot; this call starts the radio.
+        // Idempotent: subsequent PAGE_WIFI entries are no-ops.
+        app_wifi_sink_start(app);
+        // Identity is sent from _on_wifi_state(CONNECTED) on every TCP connect.
+        break;
+
     default: break;
     }
 }
@@ -1681,6 +2178,14 @@ static void _page_exit(app_t *app, app_page_t page)
         _set_ce(app, false);
         break;
 
+    case PAGE_WIFI:
+        _set_fan(app, false);
+        _ledc_set_pct(0);
+        _set_ce(app, false);
+        // wifi_sink keeps running in the background so reconnect is seamless
+        // on next PAGE_WIFI entry — no stop/start needed.
+        break;
+
     default: break;
     }
     s_led_mode = LED_MODE_IDLE;
@@ -1700,7 +2205,7 @@ static void _startup_sequence(app_t *app)
         _set_qon(app, true);
         uint32_t t0 = ms_now();
         while ((ms_now() - t0) < 2500) {
-            float frac = (float)(ms_now() - t0) / 2500.0f;
+            float frac = (float)(ms_now() - t0) * 0.0004f;
             _render_startup(app->disp, "", "  INITIALIZING", "", frac);
             vTaskDelay(pdMS_TO_TICKS(50));
         }
@@ -1718,7 +2223,7 @@ static void _startup_sequence(app_t *app)
         // BQ already up: show 2.5s progress anyway
         uint32_t t0 = ms_now();
         while ((ms_now() - t0) < 2500) {
-            float frac = (float)(ms_now() - t0) / 2500.0f;
+            float frac = (float)(ms_now() - t0) * 0.0004f;
             _render_startup(app->disp, "", "  INITIALIZING", "", frac);
             vTaskDelay(pdMS_TO_TICKS(50));
         }
@@ -1790,15 +2295,25 @@ void app_init(app_t *app, board_t *board, display_t *disp)
     MINT("Capacity", 100,  300,   65500, 10000);
     MINT("MaxTemp",  1,    30,    80,    50);
 
+    // Sink transport selector — persisted in NVS
+    strncpy(app->items[n].key, "Sink", ITEM_KEY_LEN-1);
+    app->items[n].type  = ITEM_LIST;
+    app->items[n].nopts = 2;
+    app->items[n].opts[0] = "CAN";
+    app->items[n].opts[1] = "WiFi";
+    app->items[n].idx   = 0;  // default: CAN (overwritten by nvs_settings_apply)
+    n++;
+
     // Exec list item
     strncpy(app->items[n].key, "Exec", ITEM_KEY_LEN-1);
     app->items[n].type  = ITEM_LIST;
-    app->items[n].nopts = 5;
+    app->items[n].nopts = 6;
     app->items[n].opts[0] = "Charge";
     app->items[n].opts[1] = "Discharge";
     app->items[n].opts[2] = "Measure";
     app->items[n].opts[3] = "Status";
     app->items[n].opts[4] = "CAN sink";
+    app->items[n].opts[5] = "WiFi sink";
     app->items[n].idx   = 3;  // default: Status
     n++;
 
@@ -1925,6 +2440,10 @@ void app_run(app_t *app)
 
             case PAGE_CAN:
                 _render_can_page(app, now);
+                break;
+
+            case PAGE_WIFI:
+                _render_wifi_page(app, now);
                 break;
 
             default:

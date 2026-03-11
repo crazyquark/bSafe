@@ -87,7 +87,16 @@ typedef enum {
     PAGE_DISCHARGE,
     PAGE_MEASURE,
     PAGE_CAN,
+    PAGE_WIFI,   // WiFi remote-control — same behaviour as PAGE_CAN over TCP
 } app_page_t;
+
+// ---------------------------------------------------------------------------
+// Sink transport selection (persisted in NVS)
+// ---------------------------------------------------------------------------
+typedef enum {
+    SINK_CAN  = 0,
+    SINK_WIFI = 1,
+} sink_mode_t;
 
 // ---------------------------------------------------------------------------
 // Menu item types
@@ -205,6 +214,10 @@ typedef struct {
 
     // --- BQ wake ---
     bool bq_wake_attempted;
+
+    // --- Transport ---
+    sink_mode_t sink_mode;           // SINK_CAN or SINK_WIFI, loaded from NVS
+    char        wifi_conn_str[16];   // shown in title bar: "CONN..." "OK" etc.
 } app_t;
 
 // ---------------------------------------------------------------------------
@@ -212,4 +225,12 @@ typedef struct {
 // ---------------------------------------------------------------------------
 void app_init(app_t *app, board_t *board, display_t *disp);
 void app_run(app_t *app);   // never returns
+
+/**
+ * @brief Start the WiFi sink with the app-internal callbacks wired in.
+ *        Call after app_init() and nvs_settings_apply() when sink_mode==WIFI.
+ *        Idempotent — safe to call multiple times.
+ */
+void app_wifi_sink_start(app_t *app);
+
 extern adc_oneshot_unit_handle_t s_adc;
