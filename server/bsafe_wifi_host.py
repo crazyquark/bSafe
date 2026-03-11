@@ -217,8 +217,10 @@ class DeviceConnection:
             elif ftype == FRAME_TYPE_TELEM:
                 frame = TelemetryStatus.parse(address, payload)
                 if host._on_telem:
+                    # TelemetryStatus carries rpm, bq_temp, vbat, ibat — no ir_uohm
+                    # (ir_uohm arrives separately via FRAME_TYPE_IR → _on_ir)
                     host._on_telem(address, frame.rpm, frame.bq_temp_c,
-                                   frame.ir_uohm, frame.vbat_v, frame.ibat_a)
+                                   0, frame.vbat_v, frame.ibat_a)
 
             elif ftype == FRAME_TYPE_IR:
                 frame = IrStatus.parse(address, payload)

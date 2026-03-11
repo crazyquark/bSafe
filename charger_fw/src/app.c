@@ -30,7 +30,7 @@ static const char *TAG = "app";
 // ---------------------------------------------------------------------------
 static inline uint32_t ms_now(void)
 {
-    return (uint32_t)(esp_timer_get_time() >> 10);
+    return (uint32_t)(esp_timer_get_time() / 1000ULL);
 }
 
 static inline uint32_t us_now(void)
@@ -553,11 +553,6 @@ static void _confirm_edit(app_t *app)
         else if (strcmp(action, "CAN sink")  == 0) app->page = PAGE_CAN;
         else if (strcmp(action, "WiFi sink") == 0) app->page = PAGE_WIFI;
         app->mode = MODE_PAGE;
-    } else if (strcmp(it->key, "Sink") == 0) {
-        // ITEM_LIST — persist idx directly; also update app->sink_mode
-        app->sink_mode = (sink_mode_t)it->idx;
-        nvs_settings_save_int(NVS_KEY_SINK_MODE, (int32_t)it->idx);
-        app->mode = MODE_MAIN;
     } else {
         // Persist changed value to NVS (no-op if g_skip_nvs)
         const char *nvs_key = nvs_key_for_menu_item(it->key);
@@ -1196,7 +1191,7 @@ static void _measure_ir_run(app_t *app, int pct)
 //   [1-2]   vbat mV  (uint16 BE)
 //   [3-4]   ibat mA  (int16  BE, signed)
 //   [5]     flags: bit0=error bit1=full bit2=pwr_ok bit3=batt_present
-//                  bit4=mode_change_request
+//                  bit4=reserved (was mode_change_request, never implemented)
 //   [6]     chrg_stat (full byte, BQ REG0B [4:3], 0-3)
 //   [7]     dsc_pct   (full byte, 0-100)
 // ---------------------------------------------------------------------------
@@ -1366,8 +1361,7 @@ static void _can_tx_frame(app_t *app, uint8_t frame_type)
         uint8_t  flags   = (app->chg_error_latched     ? 0x01 : 0)
                          | (app->chg_full_latched       ? 0x02 : 0)
                          | (has_bq_st && bq_st.power_good ? 0x04 : 0)
-                         | (batt_present                ? 0x08 : 0)
-                         | (app->chg_full_latched       ? 0x10 : 0); // mode_change_request
+                         | (batt_present                ? 0x08 : 0);
         data[0] = CAN_FRAME_TYPE_OP;
         data[1] = (uint8_t)(vbat_mv >> 8);
         data[2] = (uint8_t)(vbat_mv & 0xFF);
@@ -1839,8 +1833,7 @@ static void _render_wifi_page(app_t *app, uint32_t now_ms)
         uint8_t  flags   = (app->chg_error_latched          ? 0x01 : 0)
                          | (app->chg_full_latched            ? 0x02 : 0)
                          | (has_bq2 && bq2.power_good        ? 0x04 : 0)
-                         | (bp2                              ? 0x08 : 0)
-                         | (app->chg_full_latched            ? 0x10 : 0);
+                         | (bp2                              ? 0x08 : 0);
         uint8_t payload[8] = {
             CAN_FRAME_TYPE_OP,
             (uint8_t)(vbat_mv >> 8), (uint8_t)(vbat_mv & 0xFF),
@@ -1928,7 +1921,7 @@ static void _render_wifi_page(app_t *app, uint32_t now_ms)
                 /* dotted-decimal max = "255.255.255.255" = 15 chars */
                 char ip_buf[16];
                 snprintf(ip_buf, sizeof(ip_buf), "%.15s", pip);
-                if (strlen(ip_buf) <= 13)
+                if (strlen(ip_buf) <= 12)
                     snprintf(line, sizeof(line), "PI@%s", ip_buf);
                 else
                     snprintf(line, sizeof(line), "@%s", ip_buf);
@@ -2009,22 +2002,21 @@ static void _render_wifi_page(app_t *app, uint32_t now_ms)
     snprintf(line, sizeof(line), "S:%s", s_detail);
     display_draw_str(d, 0, 44, line, false);
 
-    // ---- LINE 5 (y=60): Activity bar — time since last RX or successful TX --
-    // 4px tall bar, x=0..127.  x=0 is a permanent 8px-tall anchor column.
-    // Rate: 2 px/s  →  full scale = 63.5 s  (127 drawable columns at x=1..127).
-    // s_wifi_last_activity_ms is updated on every acknowledged TX and every RX.
-    // Bar is cleared and rebuilt each frame from the current elapsed time.
+    // ---- LINE 5 (y=60): Activity bar — seconds since last RX or successful TX --
+    // 4px tall, x=0..127.  x=0 is always ON at 8px.
+    // Each second since last activity draws one column at height 4px.
+    // Bar is cleared and rebuilt each frame.
     {
-        // Permanent anchor at x=0, full bar height (8px) so it's always visible
+        // Always-on anchor at x=0, height 8px (taller than bar to stand out)
         display_fill_rect(d, 0, 56, 1, 8, true);
 
         if (s_wifi_last_activity_ms != 0) {
-            uint32_t elapsed_ms = now_ms - s_wifi_last_activity_ms;
-            // 2 px/s: pixels = elapsed_ms * 2 / 1000, capped at 127 drawable cols
-            uint32_t px = elapsed_ms >> 9;
-            if (px > 127u) px = 127u;
-            if (px > 0)
-                display_fill_rect(d, 1, 60, (int)px, 4, true);
+            uint32_t elapsed_s = (now_ms - s_wifi_last_activity_ms) / 1000;
+            // Each elapsed second lights one column; cap at display width - 1
+            if (elapsed_s > 126) elapsed_s = 126;
+            // Draw a filled bar from x=1 to x=elapsed_s at height 4px (y=60..63)
+            if (elapsed_s > 0)
+                display_fill_rect(d, 1, 60, (int)elapsed_s, 4, true);
         }
     }
 
@@ -2205,7 +2197,7 @@ static void _startup_sequence(app_t *app)
         _set_qon(app, true);
         uint32_t t0 = ms_now();
         while ((ms_now() - t0) < 2500) {
-            float frac = (float)(ms_now() - t0) * 0.0004f;
+            float frac = (float)(ms_now() - t0) / 2500.0f;
             _render_startup(app->disp, "", "  INITIALIZING", "", frac);
             vTaskDelay(pdMS_TO_TICKS(50));
         }
@@ -2223,7 +2215,7 @@ static void _startup_sequence(app_t *app)
         // BQ already up: show 2.5s progress anyway
         uint32_t t0 = ms_now();
         while ((ms_now() - t0) < 2500) {
-            float frac = (float)(ms_now() - t0) * 0.0004f;
+            float frac = (float)(ms_now() - t0) / 2500.0f;
             _render_startup(app->disp, "", "  INITIALIZING", "", frac);
             vTaskDelay(pdMS_TO_TICKS(50));
         }
@@ -2294,15 +2286,6 @@ void app_init(app_t *app, board_t *board, display_t *disp)
     MFLOAT("DscTo",  0.01f, 3.00f, 4.00f, 3.70f, 2);
     MINT("Capacity", 100,  300,   65500, 10000);
     MINT("MaxTemp",  1,    30,    80,    50);
-
-    // Sink transport selector — persisted in NVS
-    strncpy(app->items[n].key, "Sink", ITEM_KEY_LEN-1);
-    app->items[n].type  = ITEM_LIST;
-    app->items[n].nopts = 2;
-    app->items[n].opts[0] = "CAN";
-    app->items[n].opts[1] = "WiFi";
-    app->items[n].idx   = 0;  // default: CAN (overwritten by nvs_settings_apply)
-    n++;
 
     // Exec list item
     strncpy(app->items[n].key, "Exec", ITEM_KEY_LEN-1);

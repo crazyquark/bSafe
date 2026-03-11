@@ -476,11 +476,7 @@ void nvs_settings_apply(const settings_t *s, app_t *app)
         if (strcmp(it->key, "DscTo")    == 0) { it->val = s->dsc_to;               continue; }
         if (strcmp(it->key, "Capacity") == 0) { it->val = (float)s->capacity_mah;  continue; }
         if (strcmp(it->key, "MaxTemp")  == 0) { it->val = (float)s->max_temp;      continue; }
-        if (strcmp(it->key, "Sink")     == 0) { it->idx = (s->sink_mode != 0) ? 1 : 0; continue; }
     }
-    // Keep app struct in sync so code outside the menu loop can read it cheaply
-    app->sink_mode = (sink_mode_t)(s->sink_mode != 0 ? 1 : 0);
-
     // NOTE: WiFi network seeding (default SSID/password) is done inside
     // wifi_sink_preinit(), which must be called from main.c before app_init().
     // Do NOT call wifi_sink_add_network() here — the wifi mutex is not
@@ -498,7 +494,6 @@ const char *nvs_key_for_menu_item(const char *menu_key)
     if (strcmp(menu_key, "DscTo")    == 0) return NVS_KEY_DSC_TO;
     if (strcmp(menu_key, "Capacity") == 0) return NVS_KEY_CAPACITY;
     if (strcmp(menu_key, "MaxTemp")  == 0) return NVS_KEY_MAX_TEMP;
-    if (strcmp(menu_key, "Sink")     == 0) return NVS_KEY_SINK_MODE;
     return NULL;  // "Exec" and any future non-persistent items
 }
 

@@ -63,6 +63,15 @@ def init_network(engine, socketio=None, force_softap: bool = False):
     def _on_telem(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a):
         engine.on_telemetry(address, rpm, bq_temp_c, ir_uohm, vbat_v, ibat_a)
 
+    def _on_ir(address, frame):
+        # Pass corrected ir_uohm to engine using current vbat from engine state
+        snap = engine.get_ui_snapshot()
+        vbat_v = snap["devices"].get(address, {}).get("vbat_v", 0.0)
+        from bsafe_frames import corrected_ir_uohm
+        ir_corrected = int(corrected_ir_uohm(float(frame.ir_uohm_raw), vbat_v))
+        engine.on_telemetry(address, rpm=0, bq_temp_c=0,
+                            ir_uohm=ir_corrected, vbat_v=vbat_v, ibat_a=0.0)
+
     def _on_identity(address, schema_ver, hw_hash):
         engine.on_identity(address, schema_ver, hw_hash)
 
@@ -71,6 +80,7 @@ def init_network(engine, socketio=None, force_softap: bool = False):
 
     _wifi_host.on_any_status(_on_status)
     _wifi_host.on_telemetry(_on_telem)
+    _wifi_host.on_ir(_on_ir)
     _wifi_host.on_identity(_on_identity)
     _wifi_host.on_wifi_identity(_on_wifi_identity)
     _wifi_host.start()
