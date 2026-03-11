@@ -1710,14 +1710,16 @@ static void _render_wifi_page(app_t *app, uint32_t now_ms)
 
     if (s_wifi_cmd.mode == CAN_MODE_CHARGE) {
         if (!app->chg_full_latched && !app->chg_error_latched) {
-            _set_ce(app, true);
-            if (app->board->has_bq) {
-                bq25895_set_hiz(&app->board->bq, false);
-                bq25895_set_charge_enable(&app->board->bq, true);
-                bq25895_watchdog_kick(&app->board->bq);
+            // _apply_bq_for_charge sets VREG/ICHG/IINLIM from NVS and enables
+            // the BQ + CE pin.  Fall back to GPIO-only CE for BQ-less boards.
+            if (!_apply_bq_for_charge(app)) {
+                _set_ce(app, true);
             }
         } else {
             _set_ce(app, false);
+            if (app->board->has_bq) {
+                bq25895_set_charge_enable(&app->board->bq, false);
+            }
         }
     } else if (s_wifi_cmd.mode == CAN_MODE_DISCHARGE) {
         _set_ce(app, false);
