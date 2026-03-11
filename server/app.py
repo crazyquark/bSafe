@@ -224,6 +224,7 @@ def api_apply():
 
 @app.route("/api/device/<int:address>/start", methods=["POST"])
 def api_device_start(address):
+    address = engine.resolve_address(address)
     data   = request.json or {}
     body   = data.get("body", "")
     pid    = data.get("program_id")
@@ -237,26 +238,31 @@ def api_device_start(address):
 
 @app.route("/api/device/<int:address>/pause", methods=["POST"])
 def api_device_pause(address):
+    address = engine.resolve_address(address)
     engine.pause_device(address)
     return jsonify({"ok": True})
 
 @app.route("/api/device/<int:address>/resume", methods=["POST"])
 def api_device_resume(address):
+    address = engine.resolve_address(address)
     engine.resume_device(address)
     return jsonify({"ok": True})
 
 @app.route("/api/device/<int:address>/stop", methods=["POST"])
 def api_device_stop(address):
+    address = engine.resolve_address(address)
     engine.stop_device(address)
     return jsonify({"ok": True})
 
 @app.route("/api/device/<int:address>/unload", methods=["POST"])
 def api_device_unload(address):
+    address = engine.resolve_address(address)
     engine.unload_device(address)
     return jsonify({"ok": True})
 
 @app.route("/api/device/<int:address>/request_frame", methods=["POST"])
 def api_request_frame(address):
+    address = engine.resolve_address(address)
     data = request.json or {}
     ftype = data.get("frame_type", 1)
     engine._request_frame(address, ftype)

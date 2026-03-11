@@ -49,6 +49,7 @@ class DeviceState:
     # WiFi identity
     mac:          str   = ""    # WiFi STA MAC, set by on_wifi_identity
     # Host-side tracking
+    ui_key:       int   = 0      # synthetic int key for UI (CAN addr or MAC-derived)
     last_rx:      float = 0.0
     last_telemetry_rx: float = 0.0
     online:       bool  = False
@@ -327,7 +328,8 @@ class Engine:
         self.can_host  = can_host
         self._wifi_host = None   # set later by set_wifi_host() from network_blueprint
         self._sessions: Dict[int, DeviceSession] = {}   # address → session
-        self._states: Dict[int, DeviceState] = {}       # address → DeviceState
+        self._states: Dict[int, DeviceState] = {}       # address → DeviceState (CAN)
+        self._wifi_states: Dict[str, DeviceState] = {}  # mac → DeviceState (WiFi)
         self._auto_program: Optional[dict] = None        # steps for auto mode
         self._auto_mode = False
         self._estop = False
@@ -340,6 +342,20 @@ class Engine:
         """Wire in the BSafeWiFiHost so _send_cmd can route WiFi-connected devices."""
         self._wifi_host = wifi_host
         log.info("WiFi host registered with engine")
+
+    def resolve_address(self, ui_key: int) -> int:
+        """
+        Resolve a UI key (from the snapshot) back to the real device address
+        used for sessions and send_cmd.  For CAN devices ui_key == address.
+        For WiFi devices ui_key is the MAC-derived int; the real address is
+        ws.address (the CAN byte, e.g. 0).
+        Returns the real address, or ui_key if not found (CAN device fallback).
+        """
+        with self._lock:
+            for ws in self._wifi_states.values():
+                if ws.ui_key == ui_key:
+                    return ws.address
+        return ui_key   # CAN device: ui_key IS the address
 
     def start(self):
         self._running = True
@@ -357,15 +373,25 @@ class Engine:
     # -------------------------------------------------------------------------
     # CAN state update (called by CAN RX thread)
     # -------------------------------------------------------------------------
+    def _state_for_address_locked(self, address: int):
+        """Return wifi_state matching frame address, or None. Must hold self._lock."""
+        for ws in self._wifi_states.values():
+            if ws.address == address:
+                return ws
+        return None
+
     def on_status(self, status):
         """Called from bsafe_host.py BSafeHost RX thread with ChargerStatus."""
         addr = status.address
         with self._lock:
-            if addr not in self._states:
-                self._states[addr] = DeviceState(address=addr)
-                db.log_event("device_seen", address=addr,
-                             data={"first_seen": True})
-            s = self._states[addr]
+            # WiFi devices live in _wifi_states keyed by MAC; find by frame address.
+            s = self._state_for_address_locked(addr)
+            if s is None:
+                if addr not in self._states:
+                    self._states[addr] = DeviceState(address=addr)
+                    db.log_event("device_seen", address=addr,
+                                 data={"first_seen": True})
+                s = self._states[addr]
             prev_batt = s.batt_present
             prev_online = s.online
 
@@ -417,9 +443,9 @@ class Engine:
     def on_telemetry(self, address: int, rpm: int, bq_temp_c: int,
                      ir_uohm: int, vbat_v: float, ibat_a: float):
         with self._lock:
-            if address not in self._states:
+            s = self._state_for_address_locked(address) or self._states.get(address)
+            if s is None:
                 return
-            s = self._states[address]
             s.rpm           = rpm
             s.bq_temp_c     = bq_temp_c
             s.ir_uohm       = ir_uohm
@@ -431,9 +457,11 @@ class Engine:
 
     def on_identity(self, address: int, schema_ver: int, hw_hash: int):
         with self._lock:
-            if address not in self._states:
-                self._states[address] = DeviceState(address=address)
-            s = self._states[address]
+            s = self._state_for_address_locked(address)
+            if s is None:
+                if address not in self._states:
+                    self._states[address] = DeviceState(address=address)
+                s = self._states[address]
             s.schema_ver  = schema_ver
             s.hw_ver_hash = hw_hash
         db.upsert_identity(address, schema_ver, hw_hash)
@@ -448,7 +476,9 @@ class Engine:
         while self._running:
             now = time.time()
             with self._lock:
-                for addr, s in list(self._states.items()):
+                all_states = list(self._states.items()) + [
+                    (ws.address, ws) for ws in self._wifi_states.values()]
+                for addr, s in all_states:
                     # Offline detection
                     if s.online and (now - s.last_rx) > OFFLINE_TIMEOUT:
                         s.online = False
@@ -564,20 +594,28 @@ class Engine:
                   request_flag=False, req_frame_type=0):
         # Route to WiFi host if device is WiFi-connected, else fall through to CAN.
         # WiFi host is registered lazily by network_blueprint.init_network().
-        if self._wifi_host is not None and self._wifi_host.is_connected(address):
-            try:
-                self._wifi_host.send_cmd(
-                    address        = address,
-                    mode           = mode,
-                    dsc_duty_pct   = dsc_duty_pct,
-                    dsc_pulse_ms   = dsc_pulse_ms,
-                    settle_minutes = settle_minutes,
-                    request_flag   = request_flag,
-                    req_frame_type = req_frame_type,
-                )
-            except Exception as e:
-                log.warning(f"WiFi send error [{address}]: {e}")
-            return
+        if self._wifi_host is not None:
+            # Resolve MAC for this address: WiFi states are indexed by MAC
+            mac = None
+            with self._lock:
+                for m, ws in self._wifi_states.items():
+                    if ws.address == address:
+                        mac = m
+                        break
+            if mac and self._wifi_host.is_connected(mac):
+                try:
+                    self._wifi_host.send_cmd(
+                        mac            = mac,
+                        mode           = mode,
+                        dsc_duty_pct   = dsc_duty_pct,
+                        dsc_pulse_ms   = dsc_pulse_ms,
+                        settle_minutes = settle_minutes,
+                        request_flag   = request_flag,
+                        req_frame_type = req_frame_type,
+                    )
+                except Exception as e:
+                    log.warning(f"WiFi send error [{mac}]: {e}")
+                return
 
         if self.can_host is None:
             return
@@ -603,15 +641,33 @@ class Engine:
     # UI state snapshot
     # -------------------------------------------------------------------------
     def on_wifi_identity(self, address: int, mac_str: str):
-        """Called when a device sends its MAC via FRAME_WIFI_IDENTITY (0x04)."""
-        import db
+        """Promote a provisional int-keyed state to a stable MAC-keyed wifi_state.
+
+        Assigns a synthetic int UI key from the last 2 bytes of the MAC so the
+        UI (which uses integer-keyed device cards and API routes) works without
+        change.  address (CAN byte) is kept for OP/TELEM/IR frame routing via
+        _state_for_address_locked.
+        """
+        # Synthetic int key: last 2 MAC bytes → 0x0000–0xFFFF, offset to
+        # avoid collision with real CAN addresses (0–63).
+        try:
+            mac_parts = [int(x, 16) for x in mac_str.split(":")]
+            ui_key = 0x10000 | (mac_parts[-2] << 8) | mac_parts[-1]
+        except Exception:
+            ui_key = address  # fallback
+
         with self._lock:
-            if address not in self._states:
-                self._states[address] = DeviceState(address=address)
-            self._states[address].mac = mac_str
-        db.upsert_device_wifi_state(address, mac=mac_str)
-        import logging
-        logging.getLogger("engine").info(f"[{address}] WiFi MAC: {mac_str}")
+            self._states.pop(address, None)  # remove any provisional int entry
+            if mac_str not in self._wifi_states:
+                ws = DeviceState(address=address)
+                ws.mac    = mac_str
+                ws.ui_key = ui_key
+                self._wifi_states[mac_str] = ws
+            else:
+                self._wifi_states[mac_str].address = address
+                self._wifi_states[mac_str].ui_key  = ui_key
+        db.upsert_device_wifi_state_by_mac(mac_str, frame_address=address)
+        log.info(f"WiFi device promoted MAC={mac_str} addr={address} ui_key={ui_key:#x}")
 
     def set_device_alias(self, mac: str, alias):
         """Persist a user alias for a device identified by MAC."""
@@ -621,8 +677,13 @@ class Engine:
     def get_ui_snapshot(self) -> dict:
         with self._lock:
             devices = {}
-            for addr, s in self._states.items():
-                session = self._sessions.get(addr)
+            # CAN devices keyed by int address; WiFi by ui_key (MAC-derived int)
+            all_snap = (
+                [(addr, st) for addr, st in self._states.items()] +
+                [(ws.ui_key or ws.address, ws) for ws in self._wifi_states.values()]
+            )
+            for addr, s in all_snap:
+                session = self._sessions.get(s.address)
                 sess_state = None
                 if session:
                     sess_state = {
@@ -637,6 +698,7 @@ class Engine:
                     }
                 devices[addr] = {
                     "address":       addr,
+                    "ui_key":        addr,
                     "online":        s.online,
                     "mode":          s.mode,
                     "vbat_v":        round(s.vbat_v, 3),
@@ -661,5 +723,5 @@ class Engine:
                 "devices":    devices,
                 "auto_mode":  self._auto_mode,
                 "device_count": len(devices),
-                "online_count": sum(1 for s in self._states.values() if s.online),
+                "online_count": sum(1 for s in list(self._states.values()) + list(self._wifi_states.values()) if s.online),
             }

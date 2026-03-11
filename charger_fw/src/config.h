@@ -101,7 +101,7 @@
 // push additional networks at runtime via WIFI_CFG_PUSH frames.
 // -----------------------------------------------------------------------------
 #define WIFI_DEFAULT_NETWORKS  { \
-    /* { "profi",        "profielements!", 10 }, */ \
+    { "ps",        "persidius2000", 10 }, \
     { "RaspAP",  "ChangeMe",    10  },  \
     { "DIGI-5Cub",  "4e6ApSAczb",    8  },  \
     { "DIGI-Cub",  "4e6ApSAczb",    6  },  \
